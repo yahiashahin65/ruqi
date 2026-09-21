@@ -22,14 +22,22 @@ export function getR2PublicBaseUrl() {
 }
 
 export function isR2PublicConfigured() {
-  return Boolean(hasR2Credentials() && getR2PublicBucket() && getR2PublicBaseUrl());
+  return Boolean(
+    hasR2Credentials() &&
+      getR2PublicBucket() &&
+      getR2PublicBaseUrl()
+  );
 }
 
 export function isR2PrivateConfigured() {
-  return Boolean(hasR2Credentials() && getR2PrivateBucket());
+  return Boolean(
+    hasR2Credentials() &&
+      getR2PrivateBucket()
+  );
 }
 
-// Backwards-compatible alias for older code. Public media requires a public base URL.
+// Backwards-compatible alias for older code.
+// Public media requires a public base URL.
 export function isR2Configured() {
   return isR2PublicConfigured();
 }
@@ -47,14 +55,30 @@ export function getR2Client() {
   });
 }
 
-export async function getPrivateR2DownloadUrl(key: string | undefined, expiresIn = 300) {
+export async function getPrivateR2DownloadUrl(
+  key: string | undefined,
+  expiresIn = 300
+) {
   const client = getR2Client();
   const bucket = getR2PrivateBucket();
-  if (!client || !bucket || !key.startsWith("leads/")) return null;
+
+  if (
+    !client ||
+    !bucket ||
+    !key ||
+    !key.startsWith("leads/")
+  ) {
+    return null;
+  }
 
   return getSignedUrl(
     client,
-    new GetObjectCommand({ Bucket: bucket, Key: key }),
-    { expiresIn }
+    new GetObjectCommand({
+      Bucket: bucket,
+      Key: key
+    }),
+    {
+      expiresIn
+    }
   );
 }
