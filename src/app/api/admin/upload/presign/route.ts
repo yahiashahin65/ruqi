@@ -17,7 +17,7 @@ const allowedTypes = new Map([
   ["image/avif", "avif"],
   ["application/pdf", "pdf"]
 ]);
-const allowedFolders = new Set(["projects", "services", "articles", "site"]);
+const allowedFolders = new Set(["projects", "services", "articles", "site","media-library"]);
 const MAX_SIZE = 20 * 1024 * 1024;
 
 export async function POST(request: NextRequest) {
