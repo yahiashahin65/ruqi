@@ -4,6 +4,7 @@ import { DeleteButton } from "@/components/admin/DeleteButton";
 import { LeadStatusSelect } from "@/components/admin/LeadStatusSelect";
 import { getAdminLeads } from "@/lib/firebase/data";
 import { requireAdminPage } from "@/lib/firebase/session";
+import { LEAD_STATUS_LABELS } from "@/lib/constants";
 
 type SearchParams = Promise<{
   q?: string;
@@ -13,15 +14,6 @@ type SearchParams = Promise<{
 function normalize(value: string | undefined) {
   return (value || "").trim().toLocaleLowerCase("ar");
 }
-
-const STATUS_LABELS: Record<string, string> = {
-  new: "جديد",
-  contacted: "تم التواصل",
-  site_visit: "معاينة",
-  quotation: "عرض سعر",
-  won: "تم التعاقد",
-  lost: "مغلق"
-};
 
 export default async function AdminLeadsPage({
   searchParams
@@ -43,7 +35,7 @@ export default async function AdminLeadsPage({
         lead.name,
         lead.phone,
         lead.projectType,
-        lead.serviceType,
+        lead.serviceNeed,
         lead.notes
       ].some((value) =>
         normalize(value).includes(q)
@@ -51,7 +43,7 @@ export default async function AdminLeadsPage({
 
     const matchesStatus =
       status === "all" ||
-      lead.status === status;
+      (lead.status || "new") === status;
 
     return matchesSearch && matchesStatus;
   });
@@ -73,7 +65,7 @@ export default async function AdminLeadsPage({
               name="q"
               type="search"
               defaultValue={params.q || ""}
-              placeholder="ابحث باسم العميل أو رقم الجوال"
+              placeholder="ابحث باسم العميل أو رقم الجوال أو الخدمة"
             />
           </div>
 
@@ -92,11 +84,11 @@ export default async function AdminLeadsPage({
               </option>
 
               {Object.entries(
-                STATUS_LABELS
+                LEAD_STATUS_LABELS
               ).map(([key, label]) => (
                 <option
-                  key={key}
                   value={key}
+                  key={key}
                 >
                   {label}
                 </option>
@@ -123,8 +115,7 @@ export default async function AdminLeadsPage({
 
         <div className="admin-list-actions">
           <span className="admin-results-count">
-            {filteredLeads.length} من{" "}
-            {leads.length}
+            {filteredLeads.length} من {leads.length}
           </span>
         </div>
       </div>
@@ -133,10 +124,10 @@ export default async function AdminLeadsPage({
         <thead>
           <tr>
             <th>العميل</th>
-            <th>المشروع</th>
+            <th>نوع المشروع</th>
             <th>الخدمة</th>
             <th>الحالة</th>
-            <th>التاريخ</th>
+            <th>تاريخ الطلب</th>
             <th>الإجراءات</th>
           </tr>
         </thead>
@@ -149,45 +140,45 @@ export default async function AdminLeadsPage({
                   {lead.name}
                 </strong>
 
-                <div
-                  style={{
-                    marginTop: 4,
-                    opacity: 0.7,
-                    fontSize: 13
-                  }}
-                >
+                <br />
+
+                <small>
                   {lead.phone}
-                </div>
+                </small>
               </td>
 
-              <td data-label="المشروع">
+              <td data-label="نوع المشروع">
                 {lead.projectType || "—"}
               </td>
 
               <td data-label="الخدمة">
-                {lead.serviceType || "—"}
+                {lead.serviceNeed || "—"}
               </td>
 
               <td data-label="الحالة">
-                <LeadStatusSelect
-                  leadId={lead.id}
-                  value={lead.status}
-                />
+                {lead.id ? (
+                  <LeadStatusSelect
+                    id={lead.id}
+                    initial={lead.status || "new"}
+                    compact
+                  />
+                ) : (
+                  <span className="status">
+                    {
+                      LEAD_STATUS_LABELS[
+                        lead.status || "new"
+                      ]
+                    }
+                  </span>
+                )}
               </td>
 
-              <td data-label="التاريخ">
+              <td data-label="تاريخ الطلب">
                 {lead.createdAt
-                  ? new Intl.DateTimeFormat(
-                      "ar-SA",
-                      {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric"
-                      }
-                    ).format(
-                      new Date(
-                        lead.createdAt
-                      )
+                  ? new Date(
+                      lead.createdAt
+                    ).toLocaleDateString(
+                      "ar-SA"
                     )
                   : "—"}
               </td>
@@ -201,23 +192,14 @@ export default async function AdminLeadsPage({
                     عرض
                   </Link>
 
-                  {lead.phone && (
-                    <a
-                      className="admin-row-link"
-                      href={`https://wa.me/${lead.phone.replace(/\D/g, "")}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      واتساب
-                    </a>
+                  {lead.id && (
+                    <DeleteButton
+                      endpoint={`/api/admin/leads/${lead.id}`}
+                      returnTo="/admin/leads"
+                      label="حذف"
+                      confirmMessage={`هل تريد حذف طلب «${lead.name}» ومرفقاته نهائيا؟`}
+                    />
                   )}
-
-                  <DeleteButton
-                    endpoint={`/api/admin/leads/${lead.id}`}
-                    returnTo="/admin/leads"
-                    label="حذف"
-                    confirmMessage={`هل تريد حذف طلب «${lead.name}» نهائيا؟`}
-                  />
                 </div>
               </td>
             </tr>
@@ -226,7 +208,7 @@ export default async function AdminLeadsPage({
           {!filteredLeads.length && (
             <tr>
               <td colSpan={6}>
-                لا توجد طلبات مطابقة للبحث أو الفلاتر الحالية.
+                لا توجد طلبات مطابقة للبحث أو الفلتر الحالي.
               </td>
             </tr>
           )}
