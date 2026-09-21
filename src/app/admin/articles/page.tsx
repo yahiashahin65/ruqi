@@ -41,7 +41,7 @@ export default async function AdminArticlesPage({
       !q ||
       [
         article.title,
-        article.intro,
+        article.excerpt,
         article.content,
         article.category
       ].some((value) => normalize(value).includes(q));
