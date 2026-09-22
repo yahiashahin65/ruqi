@@ -1086,3 +1086,141 @@ body.is-menu-locked { overflow: hidden; overscroll-behavior: none; }
     line-height: 1.24;
   }
 }
+/* =========================================================
+   RUQI - Mobile spacing refinement
+   ========================================================= */
+
+@media (max-width: 680px) {
+
+  /* Reduce huge empty spaces in footer */
+  .footer {
+    padding-top: 55px;
+    padding-bottom: 25px;
+  }
+
+  .footer__top {
+    gap: 40px;
+    padding-bottom: 45px;
+  }
+
+  .footer__statement h2 {
+    font-size: 34px;
+    line-height: 1.2;
+  }
+
+  .footer__contact {
+    margin-top: 0;
+    padding-top: 18px;
+    gap: 10px;
+  }
+
+
+  /* CTA / closing sections */
+  .home-style-finder,
+  .home-local {
+    padding-top: 70px;
+    padding-bottom: 70px;
+  }
+
+
+  /* Fix giant headings on mobile */
+  .section-heading h2,
+  .studio-statement h2,
+  .footer__statement h2 {
+    text-wrap: balance;
+  }
+
+
+  /* Better hero title positioning */
+  .hero__content {
+    padding-bottom: 45px;
+  }
+
+
+  /* Prevent sections from hiding behind fixed header */
+  section[id],
+  .page-section[id] {
+    scroll-margin-top: 90px;
+  }
+
+
+  /* Footer links alignment */
+  .footer__bottom {
+    gap: 22px;
+    padding-top: 20px;
+  }
+
+  .footer__bottom > p {
+    text-align: center;
+  }
+
+  .footer__links {
+    justify-content: center;
+  }
+}
+
+
+/* Extra small devices */
+@media (max-width: 420px) {
+
+  .footer__statement h2 {
+    font-size: 30px;
+  }
+
+  .footer {
+    padding-top: 45px;
+  }
+
+}
+/* RUQI - Brand Arabic / English spacing fix */
+
+.brand-mark__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  line-height: 1;
+}
+
+.brand-mark__arabic {
+  display: block;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.brand-mark__latin {
+  display: block;
+  line-height: 1;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+
+@media (max-width: 680px) {
+
+  .brand-mark__copy {
+    gap: 4px;
+  }
+
+  .brand-mark__arabic {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .brand-mark__latin {
+    font-size: 7px;
+    letter-spacing: .16em;
+  }
+
+}
+
+
+/* ده التعديل الثاني حطه تحته مباشرة */
+
+.brand-mark {
+  align-items: center;
+}
+
+.brand-mark__copy {
+  justify-content: center;
+}
