@@ -9,10 +9,10 @@ import { BrandMark } from "./BrandMark";
 const nav = [
   ["المشاريع", "/projects"],
   ["الخدمات", "/services"],
-  ["المنهج", "/process"],
-  ["الاستوديو", "/about"],
+  ["طريقة العمل", "/process"],
   ["المجلة", "/journal"],
-  ["تواصل", "/contact"]
+  ["من نحن", "/about"],
+  ["تواصل", "/contact"],
 ];
 
 export function Header() {
