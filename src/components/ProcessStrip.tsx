@@ -11,9 +11,15 @@ export function ProcessStrip() {
     <section className="process-strip">
       <div className="shell">
         <div className="process-strip__intro" data-reveal>
-          <p className="eyebrow">المنهج</p>
-          <h2>وضوح قبل الجمال.<br />تفاصيل قبل التسليم.</h2>
+          <p className="eyebrow">طريقة العمل</p>
+
+          <h2>
+            وضوح قبل الجمال.
+            <br />
+            تفاصيل قبل التسليم.
+          </h2>
         </div>
+
         <div className="process-strip__steps">
           {steps.map(([number, title, text]) => (
             <article key={number} data-reveal>
