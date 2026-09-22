@@ -17,7 +17,9 @@ export async function Footer() {
     <footer className="footer">
       <div className="shell footer__top">
         <div className="footer__statement">
-          <p className="eyebrow">مشروعك القادم</p>
+          <p className="eyebrow">
+            مشروعك القادم
+          </p>
 
           <h2>
             المكان الجيد لا يلفت النظر فقط.
@@ -40,10 +42,13 @@ export async function Footer() {
           <div className="footer__socials">
             <a
               href={`tel:${settings.phone}`}
-              aria-label={`اتصال على ${settings.phone}`}
+              aria-label="اتصال"
               title="اتصال"
             >
-              <Phone size={19} strokeWidth={1.7} />
+              <Phone
+                size={19}
+                strokeWidth={1.7}
+              />
             </a>
 
             <a
@@ -53,7 +58,10 @@ export async function Footer() {
               aria-label="واتساب"
               title="واتساب"
             >
-              <MessageCircle size={20} strokeWidth={1.7} />
+              <MessageCircle
+                size={20}
+                strokeWidth={1.7}
+              />
             </a>
 
             {settings.tiktok && (
@@ -64,7 +72,10 @@ export async function Footer() {
                 aria-label="تيك توك"
                 title="تيك توك"
               >
-                <Music2 size={20} strokeWidth={1.7} />
+                <Music2
+                  size={20}
+                  strokeWidth={1.7}
+                />
               </a>
             )}
 
@@ -76,15 +87,15 @@ export async function Footer() {
                 aria-label="سناب شات"
                 title="سناب شات"
               >
-                <Ghost size={20} strokeWidth={1.7} />
+                <Ghost
+                  size={20}
+                  strokeWidth={1.7}
+                />
               </a>
             )}
           </div>
 
-          <a
-            className="footer__phone"
-            href={`tel:${settings.phone}`}
-          >
+          <a href={`tel:${settings.phone}`}>
             {settings.phone}
           </a>
         </div>
@@ -102,12 +113,8 @@ export async function Footer() {
             الخدمات
           </Link>
 
-          <Link href="/process">
-            طريقة العمل
-          </Link>
-
-          <Link href="/about">
-            من نحن
+          <Link href="/madinah-interior-design">
+            تصميم داخلي في المدينة
           </Link>
 
           <Link href="/journal">
