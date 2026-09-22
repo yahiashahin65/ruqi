@@ -6,6 +6,7 @@ import { ArrowUpLeft } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
 import { getServiceBySlug } from "@/lib/firebase/data";
 import { breadcrumbsJsonLd, serviceJsonLd, serviceMetadata } from "@/lib/seo";
+import { serviceWhatsapp } from "@/lib/whatsapp";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -41,7 +42,14 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
                 <ul className="deliverables">{service.deliverables.map((item) => <li key={item}>{item}</li>)}</ul>
               </>
             )}
-            <Link className="button button--solid" href="/start-project">اطلب الخدمة <ArrowUpLeft size={18} /></Link>
+            <a
+  className="button"
+  href={serviceWhatsapp(service.title)}
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  اطلب الخدمة
+</a>
           </div>
         </div>
       </section>
