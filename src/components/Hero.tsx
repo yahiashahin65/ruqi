@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowDownLeft, ArrowUpLeft } from "lucide-react";
-
+import { projectWhatsapp } from "@/lib/whatsapp";
 type HeroImage = { url: string; alt?: string };
 
 const fallbackImage: HeroImage = {
@@ -71,12 +71,14 @@ export function Hero({ image }: { image?: HeroImage }) {
             <ArrowUpLeft size={18} />
           </Link>
 
-          <Link
-            className="hero__plain-link"
-            href="/start-project"
-          >
-            ابدأ مشروعك
-          </Link>
+          <a
+  className="hero__plain-link"
+  href={projectWhatsapp()}
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  ابدأ مشروعك
+</a>
         </div>
       </div>
 
