@@ -98,8 +98,10 @@ export interface SiteSettings {
   city: string;
   phone: string;
   whatsapp: string;
-  email: string;
+  email?: string;
   address?: string;
   instagram?: string;
+  tiktok?: string;
+  snapchat?: string;
   businessHours?: string;
 }
