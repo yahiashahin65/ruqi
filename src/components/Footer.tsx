@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 
 import { getPublicSettings } from "@/lib/firebase/data";
+import { projectWhatsapp } from "@/lib/whatsapp";
 import { BrandMark } from "./BrandMark";
 
 export async function Footer() {
@@ -27,13 +28,15 @@ export async function Footer() {
             يغيّر طريقة العيش داخله.
           </h2>
 
-          <Link
+          <a
             className="text-link text-link--light"
-            href="/start-project"
+            href={projectWhatsapp()}
+            target="_blank"
+            rel="noopener noreferrer"
           >
             احك لنا عن مشروعك
             <ArrowUpLeft size={18} />
-          </Link>
+          </a>
         </div>
 
         <div className="footer__contact">
