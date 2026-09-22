@@ -298,17 +298,76 @@ export const getArticles =
 
 export async function getArticleBySlug(
   slug: string
-) {
-  const articles =
-    await getArticles();
+): Promise<Article | null> {
+  const normalizedSlug =
+    normalizeSlug(slug);
 
-  return (
-    articles.find(
-      (article) =>
-        article.slug === slug
-    ) || null
-  );
-}
+  if (!isFirebaseAdminConfigured()) {
+    if (!useDemoContent) {
+      return null;
+    }
+
+    return (
+      demoArticles.find(
+        (article) =>
+          normalizeSlug(
+            article.slug
+          ) === normalizedSlug
+      ) || null
+    );
+  }
+
+  try {
+    const db = getAdminDb();
+
+    if (!db) return null;
+
+    const snapshot = await db
+      .collection("articles")
+      .where(
+        "slug",
+        "==",
+        normalizedSlug
+      )
+      .limit(1)
+      .get();
+
+    if (!snapshot.empty) {
+      const doc =
+        snapshot.docs[0];
+
+      const article =
+        normalize<Article>(
+          doc.id,
+          doc.data()
+        );
+
+      return article.status === "published"
+        ? article
+        : null;
+    }
+
+    const articles =
+      await getArticles();
+
+    return (
+      articles.find(
+        (article) =>
+          normalizeSlug(
+            article.slug
+          ) === normalizedSlug
+      ) || null
+    );
+
+  } catch (error) {
+    console.error(
+      "[getArticleBySlug]",
+      error
+    );
+
+    return null;
+  }
+    }
 
 export async function getPublicSettings(): Promise<SiteSettings> {
   const db = getAdminDb();
