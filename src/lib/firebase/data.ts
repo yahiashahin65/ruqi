@@ -616,3 +616,97 @@ export async function getAdminArticles(): Promise<
   );
 
 }
+export async function getAdminArticle(
+  id: string
+): Promise<Article | null> {
+
+  if (!isFirebaseAdminConfigured()) {
+
+    return useDemoContent
+      ? demoArticles.find(
+          (item) =>
+            item.id === id
+        ) || null
+      : null;
+
+  }
+
+
+  const db = getAdminDb();
+
+
+  if (!db) return null;
+
+
+  const snap = await db
+    .collection("articles")
+    .doc(id)
+    .get();
+
+
+  return snap.exists
+    ? normalize<Article>(
+        snap.id,
+        snap.data() || {}
+      )
+    : null;
+}
+
+
+
+export async function getAdminLeads(): Promise<
+  Lead[]
+> {
+
+  const db = getAdminDb();
+
+
+  if (!db) return [];
+
+
+  const snap = await db
+    .collection("leads")
+    .orderBy(
+      "createdAt",
+      "desc"
+    )
+    .limit(200)
+    .get();
+
+
+  return snap.docs.map(
+    (doc) =>
+      normalize<Lead>(
+        doc.id,
+        doc.data()
+      )
+  );
+
+}
+
+
+
+export async function getAdminLead(
+  id: string
+): Promise<Lead | null> {
+
+  const db = getAdminDb();
+
+
+  if (!db) return null;
+
+
+  const snap = await db
+    .collection("leads")
+    .doc(id)
+    .get();
+
+
+  return snap.exists
+    ? normalize<Lead>(
+        snap.id,
+        snap.data() || {}
+      )
+    : null;
+
+}
