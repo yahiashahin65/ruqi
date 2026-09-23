@@ -14,17 +14,18 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   if (!db) return NextResponse.json({ error: "تعذر الحفظ حاليا" }, { status: 503 });
 
   await db.collection("services").doc(id).set({
-    title: parsed.data.title,
-    eyebrow: "خدماتنا",
-    excerpt: parsed.data.excerpt,
-    body: parsed.data.body,
-    deliverables: parsed.data.deliverables,
-    image: parsed.data.image,
-    status: parsed.data.status,
-    seoTitle: parsed.data.title,
-    seoDescription: parsed.data.excerpt.slice(0, 180),
-    updatedAt: new Date().toISOString()
-  }, { merge: true });
+  title: parsed.data.title,
+  eyebrow: "خدماتنا",
+  excerpt: parsed.data.excerpt,
+  body: parsed.data.body,
+  deliverables: parsed.data.deliverables,
+  image: parsed.data.image,
+  gallery: parsed.data.gallery || [],
+  status: parsed.data.status,
+  seoTitle: parsed.data.title,
+  seoDescription: parsed.data.excerpt.slice(0, 180),
+  updatedAt: new Date().toISOString()
+}, { merge: true });
 
   revalidateTag("services", "max");
   return NextResponse.json({ ok: true });
