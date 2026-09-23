@@ -78,8 +78,7 @@ export const getProjects =
         const published =
           items.filter(
             (item) =>
-              item.status ===
-              "published"
+              item.status === "published"
           );
 
         return published.length
@@ -103,6 +102,7 @@ export const getProjects =
     }
   );
 
+
 export async function getProjectBySlug(
   slug: string
 ): Promise<Project | null> {
@@ -121,6 +121,7 @@ export async function getProjectBySlug(
   );
 }
 
+
 export const getServices =
   unstable_cache(
     async (): Promise<Service[]> => {
@@ -132,20 +133,21 @@ export const getServices =
 
       try {
         const items =
-  await firestoreList<Service>(
-    "services"
-  );
+          await firestoreList<Service>(
+            "services"
+          );
 
-const normalizedItems = items.map((item) => ({
-  ...item,
-  gallery: item.gallery || []
-}));
+        const normalizedItems =
+          items.map((item) => ({
+            ...item,
+            gallery: item.gallery || []
+          }));
 
-const published =
-  normalizedItems.filter(
-    (item) =>
-      item.status === "published"
-  );
+        const published =
+          normalizedItems.filter(
+            (item) =>
+              item.status === "published"
+          );
 
         return published.length
           ? published.sort(
@@ -155,6 +157,7 @@ const published =
           : useDemoContent
             ? demoServices
             : [];
+
       } catch {
         return useDemoContent
           ? demoServices
@@ -168,20 +171,17 @@ const published =
     }
   );
 
-/**
- * Get one published service directly from Firestore.
- *
- * We deliberately do NOT depend only on getServices() here because
- * getServices() is cached. A newly-created service may already appear
- * in the public list while a detail request can still hit stale cache.
- */
+
 export async function getServiceBySlug(
   slug: string
 ): Promise<Service | null> {
+
   const normalizedSlug =
     normalizeSlug(slug);
 
+
   if (!isFirebaseAdminConfigured()) {
+
     if (!useDemoContent) {
       return null;
     }
@@ -196,15 +196,14 @@ export async function getServiceBySlug(
     );
   }
 
+
   try {
+
     const db = getAdminDb();
 
     if (!db) return null;
 
-    /*
-     * Query Firestore directly so the detail page always gets
-     * the current service instead of depending on the cached list.
-     */
+
     const snapshot = await db
       .collection("services")
       .where(
@@ -215,30 +214,32 @@ export async function getServiceBySlug(
       .limit(1)
       .get();
 
+
     if (!snapshot.empty) {
+
       const doc =
         snapshot.docs[0];
 
+
       const service = {
-  ...normalize<Service>(
-    doc.id,
-    doc.data()
-  ),
-  gallery: doc.data().gallery || []
-};
+        ...normalize<Service>(
+          doc.id,
+          doc.data()
+        ),
+        gallery:
+          doc.data().gallery || []
+      };
 
 
-return service.status === "published"
-  ? service
-  : null;
+      return service.status === "published"
+        ? service
+        : null;
     }
 
-    /*
-     * Safe fallback for older records or a temporary cache/data
-     * mismatch. This also compares normalized URL values.
-     */
+
     const services =
       await getServices();
+
 
     return (
       services.find(
@@ -248,7 +249,10 @@ return service.status === "published"
           ) === normalizedSlug
       ) || null
     );
+
+
   } catch (error) {
+
     console.error(
       "[getServiceBySlug]",
       error
@@ -257,7 +261,6 @@ return service.status === "published"
     return null;
   }
 }
-
 export const getArticles =
   unstable_cache(
     async (): Promise<Article[]> => {
@@ -306,13 +309,17 @@ export const getArticles =
     }
   );
 
+
 export async function getArticleBySlug(
   slug: string
 ): Promise<Article | null> {
+
   const normalizedSlug =
     normalizeSlug(slug);
 
+
   if (!isFirebaseAdminConfigured()) {
+
     if (!useDemoContent) {
       return null;
     }
@@ -327,10 +334,13 @@ export async function getArticleBySlug(
     );
   }
 
+
   try {
+
     const db = getAdminDb();
 
     if (!db) return null;
+
 
     const snapshot = await db
       .collection("articles")
@@ -342,9 +352,12 @@ export async function getArticleBySlug(
       .limit(1)
       .get();
 
+
     if (!snapshot.empty) {
+
       const doc =
         snapshot.docs[0];
+
 
       const article =
         normalize<Article>(
@@ -352,13 +365,16 @@ export async function getArticleBySlug(
           doc.data()
         );
 
+
       return article.status === "published"
         ? article
         : null;
     }
 
+
     const articles =
       await getArticles();
+
 
     return (
       articles.find(
@@ -369,7 +385,9 @@ export async function getArticleBySlug(
       ) || null
     );
 
+
   } catch (error) {
+
     console.error(
       "[getArticleBySlug]",
       error
@@ -377,20 +395,27 @@ export async function getArticleBySlug(
 
     return null;
   }
-    }
+}
+
+
 
 export async function getPublicSettings(): Promise<SiteSettings> {
+
   const db = getAdminDb();
+
 
   if (!db) {
     return DEFAULT_SETTINGS;
   }
 
+
   try {
+
     const snap = await db
       .collection("settings")
       .doc("public")
       .get();
+
 
     return snap.exists
       ? {
@@ -398,24 +423,35 @@ export async function getPublicSettings(): Promise<SiteSettings> {
           ...snap.data()
         }
       : DEFAULT_SETTINGS;
+
+
   } catch {
+
     return DEFAULT_SETTINGS;
+
   }
 }
+
+
 
 export async function getAdminProjects(): Promise<
   Project[]
 > {
+
   if (!isFirebaseAdminConfigured()) {
+
     return useDemoContent
       ? demoProjects
       : [];
+
   }
+
 
   const items =
     await firestoreList<Project>(
       "projects"
     );
+
 
   return items.sort(
     (a, b) =>
@@ -423,26 +459,35 @@ export async function getAdminProjects(): Promise<
   );
 }
 
+
+
 export async function getAdminProject(
   id: string
 ): Promise<Project | null> {
+
   if (!isFirebaseAdminConfigured()) {
+
     return useDemoContent
       ? demoProjects.find(
           (item) =>
             item.id === id
         ) || null
       : null;
+
   }
+
 
   const db = getAdminDb();
 
+
   if (!db) return null;
+
 
   const snap = await db
     .collection("projects")
     .doc(id)
     .get();
+
 
   return snap.exists
     ? normalize<Project>(
@@ -450,70 +495,115 @@ export async function getAdminProject(
         snap.data() || {}
       )
     : null;
+
 }
+
+
 
 export async function getAdminServices(): Promise<
   Service[]
 > {
+
   if (!isFirebaseAdminConfigured()) {
+
     return useDemoContent
       ? demoServices
       : [];
+
   }
+
 
   const items =
     await firestoreList<Service>(
       "services"
     );
 
-  return items.sort(
-    (a, b) =>
-      a.order - b.order
-  );
+
+  return items
+    .map((item) => ({
+      ...item,
+      gallery: item.gallery || []
+    }))
+    .sort(
+      (a, b) =>
+        a.order - b.order
+    );
+
 }
+
+
 
 export async function getAdminService(
   id: string
 ): Promise<Service | null> {
+
+
   if (!isFirebaseAdminConfigured()) {
+
     return useDemoContent
       ? demoServices.find(
           (item) =>
             item.id === id
         ) || null
       : null;
+
   }
+
 
   const db = getAdminDb();
 
+
   if (!db) return null;
+
 
   const snap = await db
     .collection("services")
     .doc(id)
     .get();
 
-  return snap.exists
-    ? normalize<Service>(
-        snap.id,
-        snap.data() || {}
-      )
-    : null;
+
+
+  if (!snap.exists) {
+    return null;
+  }
+
+
+  const data =
+    snap.data() || {};
+
+
+
+  return {
+    ...normalize<Service>(
+      snap.id,
+      data
+    ),
+    gallery:
+      data.gallery || []
+  };
+
 }
+
+
 
 export async function getAdminArticles(): Promise<
   Article[]
 > {
+
   if (!isFirebaseAdminConfigured()) {
+
     return useDemoContent
       ? demoArticles
       : [];
+
   }
+
 
   const items =
     await firestoreList<Article>(
       "articles"
     );
+
 
   return items.sort(
     (a, b) =>
@@ -524,78 +614,5 @@ export async function getAdminArticles(): Promise<
         a.publishedAt
       )
   );
+
 }
-
-export async function getAdminArticle(
-  id: string
-): Promise<Article | null> {
-  if (!isFirebaseAdminConfigured()) {
-    return useDemoContent
-      ? demoArticles.find(
-          (item) =>
-            item.id === id
-        ) || null
-      : null;
-  }
-
-  const db = getAdminDb();
-
-  if (!db) return null;
-
-  const snap = await db
-    .collection("articles")
-    .doc(id)
-    .get();
-
-  return snap.exists
-    ? normalize<Article>(
-        snap.id,
-        snap.data() || {}
-      )
-    : null;
-}
-
-export async function getAdminLeads(): Promise<
-  Lead[]
-> {
-  const db = getAdminDb();
-
-  if (!db) return [];
-
-  const snap = await db
-    .collection("leads")
-    .orderBy(
-      "createdAt",
-      "desc"
-    )
-    .limit(200)
-    .get();
-
-  return snap.docs.map(
-    (doc) =>
-      normalize<Lead>(
-        doc.id,
-        doc.data()
-      )
-  );
-}
-
-export async function getAdminLead(
-  id: string
-): Promise<Lead | null> {
-  const db = getAdminDb();
-
-  if (!db) return null;
-
-  const snap = await db
-    .collection("leads")
-    .doc(id)
-    .get();
-
-  return snap.exists
-    ? normalize<Lead>(
-        snap.id,
-        snap.data() || {}
-      )
-    : null;
-          }
