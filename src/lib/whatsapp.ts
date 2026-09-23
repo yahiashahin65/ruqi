@@ -4,12 +4,15 @@ function createWhatsappLink(message: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
-export function projectWhatsapp() {
+export function projectWhatsapp(projectName?: string) {
   return createWhatsappLink(
 `السلام عليكم،
-أرغب في الحديث عن مشروع تصميم داخلي.
+أرغب في تنفيذ مشروع مشابه.
 
-تفاصيل المشروع:
+اسم المشروع:
+${projectName || "مشروع تصميم داخلي"}
+
+أرغب في معرفة التفاصيل والتكلفة.
 `
   );
 }
