@@ -17,7 +17,7 @@ export default async function HomePage() {
 
   const featured = projects
     .filter((project) => project.featured)
-    .slice(0, 4);
+    .slice(0, 10);
 
   const selectedProjects = featured.length
     ? featured
