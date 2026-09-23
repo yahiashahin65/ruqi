@@ -1325,3 +1325,42 @@ body.is-menu-locked { overflow: hidden; overscroll-behavior: none; }
 .brand-mark__copy {
   justify-content: center;
 }
+/* =========================================================
+   Project Card WhatsApp CTA
+   ========================================================= */
+
+.project-card__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 18px;
+  padding: 12px 18px;
+  border: 1px solid var(--ink);
+  font-size: 12px;
+  color: var(--ink);
+  background: transparent;
+  transition:
+    background .25s ease,
+    color .25s ease,
+    transform .25s var(--ease-out),
+    border-color .25s ease;
+  width: fit-content;
+}
+
+.project-card__cta:hover {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+  transform: translateY(-2px);
+}
+
+
+@media (max-width: 680px) {
+
+  .project-card__cta {
+    width: 100%;
+    margin-top: 16px;
+    min-height: 46px;
+  }
+
+}
