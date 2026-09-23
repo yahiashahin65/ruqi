@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans_Arabic, Manrope } from "next/font/google";
 import "./globals.css";
+
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { MotionProvider } from "@/components/MotionProvider";
+import { FloatingContact } from "@/components/FloatingContact";
+
 import { DEFAULT_SETTINGS, SITE_URL } from "@/lib/constants";
 import { localBusinessJsonLd } from "@/lib/seo";
 
@@ -127,13 +130,16 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   const jsonLd = localBusinessJsonLd();
 
   return (
     <html lang="ar" dir="rtl">
+
       <body
         className={`${arabicFont.variable} ${latinFont.variable}`}
       >
+
         <MotionProvider />
 
         <Header />
@@ -142,13 +148,17 @@ export default function RootLayout({
 
         <Footer />
 
+        <FloatingContact />
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(jsonLd)
           }}
         />
+
       </body>
+
     </html>
   );
 }
