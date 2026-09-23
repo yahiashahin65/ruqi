@@ -1458,3 +1458,32 @@ body.is-menu-locked { overflow: hidden; overscroll-behavior: none; }
   }
 
   }
+.service-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 40px;
+}
+
+.button--whatsapp {
+  background: #25D366;
+  border-color: #25D366;
+  color: #fff;
+}
+
+.button--whatsapp:hover {
+  background: #1ebe5d;
+  border-color: #1ebe5d;
+  color: #fff;
+}
+
+.button--outline {
+  background: transparent;
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.button--outline:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
