@@ -4,6 +4,7 @@ function createWhatsappLink(message: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
+
 export function projectWhatsapp(projectName?: string) {
   return createWhatsappLink(
 `السلام عليكم،
@@ -17,6 +18,7 @@ ${projectName || "مشروع تصميم داخلي"}
   );
 }
 
+
 export function serviceWhatsapp(serviceName: string) {
   return createWhatsappLink(
 `السلام عليكم،
@@ -25,6 +27,19 @@ export function serviceWhatsapp(serviceName: string) {
 ${serviceName}
 
 أرغب في معرفة التفاصيل والتكلفة.
+`
+  );
+}
+
+
+export function articleWhatsapp(articleTitle?: string) {
+  return createWhatsappLink(
+`السلام عليكم،
+لدي استفسار بخصوص مقال:
+
+${articleTitle || "استشارة تصميم داخلي"}
+
+أرغب في الحصول على استشارة ومعرفة التفاصيل.
 `
   );
 }
