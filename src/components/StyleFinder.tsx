@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 
 const questions = [
   { title: "أي إحساس أقرب لك؟", options: [{ label: "هادئ ودافئ", value: "warm" }, { label: "نظيف ومختصر", value: "minimal" }, { label: "غني وفاخر", value: "luxury" }] },
@@ -17,13 +16,41 @@ const results = {
 
 type ResultKey = keyof typeof results;
 
+const whatsappNumber = "966533654669";
+
+function getWhatsappUrl(result: ResultKey) {
+  const item = results[result];
+
+  const message = `السلام عليكم،
+ارغب في بدء مشروع تصميم داخلي.
+
+نتيجة اختبار الاتجاه:
+${item.ar}
+
+التفاصيل:
+${item.text}
+
+ارغب في مناقشة تفاصيل مشروعي معكم.`;
+
+  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+}
+
 export function StyleFinder() {
   const [answers, setAnswers] = useState<ResultKey[]>([]);
   const [step, setStep] = useState(0);
+
   const result = useMemo(() => {
     if (answers.length < questions.length) return null;
-    const score = answers.reduce<Record<ResultKey, number>>((acc, key) => ({ ...acc, [key]: acc[key] + 1 }), { warm: 0, minimal: 0, luxury: 0 });
-    return (Object.keys(score) as ResultKey[]).sort((a, b) => score[b] - score[a])[0];
+
+    const score = answers.reduce<Record<ResultKey, number>>(
+      (acc, key) => ({ ...acc, [key]: acc[key] + 1 }),
+      { warm: 0, minimal: 0, luxury: 0 }
+    );
+
+    return (Object.keys(score) as ResultKey[]).sort(
+      (a, b) => score[b] - score[a]
+    )[0];
+
   }, [answers]);
 
   function choose(value: ResultKey) {
@@ -35,27 +62,73 @@ export function StyleFinder() {
 
   if (result) {
     const item = results[result];
+
     return (
       <div className="wizard__step">
         <p className="eyebrow">اتجاهك الأقرب</p>
+
         <h2>{item.ar}</h2>
-        <p className="page-hero__lead">{item.text}</p>
+
+        <p className="page-hero__lead">
+          {item.text}
+        </p>
+
         <div className="wizard__actions">
-          <button className="button" onClick={() => { setAnswers([]); setStep(0); }}>إعادة الاختبار</button>
-          <Link className="button button--solid" href="/start-project">ابدأ مشروعك</Link>
+          <button
+            className="button"
+            onClick={() => {
+              setAnswers([]);
+              setStep(0);
+            }}
+          >
+            إعادة الاختبار
+          </button>
+
+          <a
+            className="button button--solid"
+            href={getWhatsappUrl(result)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            ابدأ مشروعك
+          </a>
         </div>
       </div>
     );
   }
 
   const question = questions[step];
+
   return (
     <div className="wizard">
-      <div className="wizard__progress">{questions.map((_, index) => <span className={index <= step ? "is-active" : ""} key={index} />)}</div>
+      <div className="wizard__progress">
+        {questions.map((_, index) => (
+          <span
+            className={index <= step ? "is-active" : ""}
+            key={index}
+          />
+        ))}
+      </div>
+
       <div className="wizard__step">
-        <p className="eyebrow">السؤال {step + 1} من {questions.length}</p>
+        <p className="eyebrow">
+          السؤال {step + 1} من {questions.length}
+        </p>
+
         <h2>{question.title}</h2>
-        <div className="choice-grid">{question.options.map((option) => <button type="button" className="choice" key={option.label} onClick={() => choose(option.value as ResultKey)}>{option.label}</button>)}</div>
+
+        <div className="choice-grid">
+          {question.options.map((option) => (
+            <button
+              type="button"
+              className="choice"
+              key={option.label}
+              onClick={() => choose(option.value as ResultKey)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
