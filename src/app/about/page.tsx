@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowUpLeft } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
 import { pageMetadata } from "@/lib/seo";
+import { projectWhatsapp } from "@/lib/whatsapp";
 
 export const metadata: Metadata = pageMetadata({
   title: "من نحن | رُقِيّ الجمال للتصميم الداخلي والديكور",
@@ -56,13 +57,14 @@ export default function AboutPage() {
               بداية من التصميم وحتى التنفيذ حسب نطاق كل مشروع.
             </p>
 
-            <Link
-              className="text-link"
-              href="/start-project"
-            >
-              ناقش مشروعك
-              <ArrowUpLeft size={18} />
-            </Link>
+            <a
+  className="button button--solid"
+  href={projectWhatsapp()}
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  ناقش مشروعك
+</a>
           </div>
         </div>
       </section>
