@@ -132,16 +132,20 @@ export const getServices =
 
       try {
         const items =
-          await firestoreList<Service>(
-            "services"
-          );
+  await firestoreList<Service>(
+    "services"
+  );
 
-        const published =
-          items.filter(
-            (item) =>
-              item.status ===
-              "published"
-          );
+const normalizedItems = items.map((item) => ({
+  ...item,
+  gallery: item.gallery || []
+}));
+
+const published =
+  normalizedItems.filter(
+    (item) =>
+      item.status === "published"
+  );
 
         return published.length
           ? published.sort(
