@@ -29,7 +29,13 @@ export const projectSchema = z.object({
   before: mediaSchema.optional(),
   after: mediaSchema.optional(),
   featured: z.boolean().default(false),
-  order: z.number().int().positive().default(1),
+  order: z.coerce
+  .number({
+    message: "ترتيب العرض يجب أن يكون رقم"
+  })
+  .int("ترتيب العرض يجب أن يكون رقم صحيح")
+  .positive("ترتيب العرض يجب أن يكون أكبر من صفر")
+  .default(1),
   status: z.enum(["draft", "published"])
 });
 
