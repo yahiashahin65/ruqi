@@ -45,6 +45,7 @@ export interface Service {
   body: string;
   deliverables: string[];
   image: MediaRef;
+  gallery: MediaRef[];
   order: number;
   status: "draft" | "published";
   seoTitle?: string;
