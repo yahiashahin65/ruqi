@@ -1686,3 +1686,35 @@ body.is-menu-locked { overflow: hidden; overscroll-behavior: none; }
 }
 
 }
+.service-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 35px;
+  flex-wrap: wrap;
+}
+
+
+.button--back-service {
+  background: var(--ink);
+  color: var(--paper);
+  border: 1px solid var(--ink);
+}
+
+
+.button--back-service:hover {
+  background: var(--ink-soft);
+  color: #fff;
+}
+
+
+.button--whatsapp {
+  background: #25D366;
+  color: #fff;
+  border-color: #25D366;
+}
+
+
+.button--whatsapp:hover {
+  background: #1ebe5d;
+  border-color: #1ebe5d;
+}
