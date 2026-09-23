@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Trash2, Plus } from "lucide-react";
 import type { Service } from "@/lib/types";
 import { ImageUploader, type UploadedMedia } from "./ImageUploader";
 
@@ -16,10 +16,8 @@ type ServiceEditor = {
   status: "draft" | "published";
 };
 
-export function ServiceForm({ service }: { service?: Service }) {
-  const router = useRouter();
-
-  const [form, setForm] = useState<ServiceEditor>({
+function initialState(service?: Service): ServiceEditor {
+  return {
     title: service?.title || "",
     excerpt: service?.excerpt || "",
     body: service?.body || "",
@@ -29,10 +27,33 @@ export function ServiceForm({ service }: { service?: Service }) {
     image: service?.image as UploadedMedia | undefined,
     gallery: (service?.gallery || []) as UploadedMedia[],
     status: service?.status || "draft"
-  });
+  };
+}
+
+export function ServiceForm({
+  service
+}: {
+  service?: Service;
+}) {
+  const router = useRouter();
+
+  const [form, setForm] = useState<ServiceEditor>(() =>
+    initialState(service)
+  );
 
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
+
+
+  const set = <K extends keyof ServiceEditor>(
+    key: K,
+    value: ServiceEditor[K]
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+      [key]: value
+    }));
+  };
 
 
   async function save(event: React.FormEvent) {
@@ -40,6 +61,7 @@ export function ServiceForm({ service }: { service?: Service }) {
 
     setSaving(true);
     setMessage("");
+
 
     const response = await fetch(
       service
@@ -51,10 +73,15 @@ export function ServiceForm({ service }: { service?: Service }) {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          ...form,
+          title: form.title,
+          excerpt: form.excerpt,
+          body: form.body,
           deliverables: form.deliverables
             .map((item) => item.trim())
-            .filter(Boolean)
+            .filter(Boolean),
+          image: form.image,
+          gallery: form.gallery,
+          status: form.status
         })
       }
     );
@@ -64,60 +91,73 @@ export function ServiceForm({ service }: { service?: Service }) {
 
 
     if (!response.ok) {
-      setMessage(data.error || "تعذر حفظ الخدمة");
+      setMessage(
+        data.error || "تعذر حفظ الخدمة"
+      );
     } else {
       router.push("/admin/services");
       router.refresh();
     }
 
+
     setSaving(false);
   }
 
 
-  function updateDeliverable(index: number, value: string) {
-    setForm((prev) => ({
-      ...prev,
-      deliverables: prev.deliverables.map(
-        (item, i) =>
-          i === index ? value : item
-      )
-    }));
-  }
 
-
-  function addGalleryImage() {
-    setForm((prev) => ({
-      ...prev,
-      gallery: [
-        ...prev.gallery,
-        undefined as unknown as UploadedMedia
-      ]
-    }));
-  }
-
-
-  function updateGalleryImage(
+  function updateDeliverable(
     index: number,
-    media: UploadedMedia
+    value: string
   ) {
     setForm((prev) => ({
       ...prev,
-      gallery: prev.gallery.map(
-        (item, i) =>
-          i === index ? media : item
-      )
+      deliverables:
+        prev.deliverables.map(
+          (item, i) =>
+            i === index ? value : item
+        )
     }));
   }
 
 
-  function removeGalleryImage(index: number) {
-    setForm((prev) => ({
-      ...prev,
-      gallery: prev.gallery.filter(
-        (_, i) => i !== index
-      )
-    }));
+
+  function moveGallery(
+    index: number,
+    direction: -1 | 1
+  ) {
+    setForm((prev) => {
+
+      const next = [
+        ...prev.gallery
+      ];
+
+      const target = index + direction;
+
+
+      if (
+        target < 0 ||
+        target >= next.length
+      ) {
+        return prev;
+      }
+
+
+      [
+        next[index],
+        next[target]
+      ] = [
+        next[target],
+        next[index]
+      ];
+
+
+      return {
+        ...prev,
+        gallery: next
+      };
+    });
   }
+
 
 
   return (
@@ -126,15 +166,19 @@ export function ServiceForm({ service }: { service?: Service }) {
       onSubmit={save}
     >
 
+
       <div className="admin-form-section">
 
         <div className="admin-form-section__head">
           <span>01</span>
 
           <div>
-            <h2>الخدمة</h2>
+            <h2>
+              الخدمة
+            </h2>
+
             <p>
-              المعلومات التي ستظهر للزائر.
+              المعلومات الأساسية للخدمة.
             </p>
           </div>
         </div>
@@ -142,36 +186,47 @@ export function ServiceForm({ service }: { service?: Service }) {
 
         <div className="admin-form__grid">
 
+
           <div className="field field--full">
+
             <label>
               اسم الخدمة
             </label>
 
             <input
               value={form.title}
-              onChange={(e)=>setForm(prev=>({
-                ...prev,
-                title:e.target.value
-              }))}
+              onChange={(e)=>
+                set(
+                  "title",
+                  e.target.value
+                )
+              }
               required
             />
+
           </div>
 
 
+
           <div className="field field--full">
+
             <label>
               وصف مختصر
             </label>
 
             <textarea
               value={form.excerpt}
-              onChange={(e)=>setForm(prev=>({
-                ...prev,
-                excerpt:e.target.value
-              }))}
+              onChange={(e)=>
+                set(
+                  "excerpt",
+                  e.target.value
+                )
+              }
               required
             />
+
           </div>
+
 
 
           <div className="field field--full">
@@ -183,14 +238,17 @@ export function ServiceForm({ service }: { service?: Service }) {
             <textarea
               className="admin-textarea--large"
               value={form.body}
-              onChange={(e)=>setForm(prev=>({
-                ...prev,
-                body:e.target.value
-              }))}
+              onChange={(e)=>
+                set(
+                  "body",
+                  e.target.value
+                )
+              }
               required
             />
 
           </div>
+
 
         </div>
 
@@ -198,9 +256,12 @@ export function ServiceForm({ service }: { service?: Service }) {
 
 
 
+
+
       <div className="admin-form-section">
 
         <div className="admin-form-section__head">
+
           <span>02</span>
 
           <div>
@@ -208,13 +269,17 @@ export function ServiceForm({ service }: { service?: Service }) {
               ماذا تشمل الخدمة؟
             </h2>
           </div>
+
         </div>
+
 
 
         <div className="admin-repeat-list">
 
+
           {form.deliverables.map(
             (item,index)=>(
+
               <div
                 className="admin-repeat-row"
                 key={index}
@@ -234,13 +299,12 @@ export function ServiceForm({ service }: { service?: Service }) {
                 <button
                   type="button"
                   onClick={()=>
-                    setForm(prev=>({
-                      ...prev,
-                      deliverables:
-                        prev.deliverables.filter(
-                          (_,i)=>i!==index
-                        )
-                    }))
+                    set(
+                      "deliverables",
+                      form.deliverables.filter(
+                        (_,i)=>i !== index
+                      )
+                    )
                   }
                 >
 
@@ -248,22 +312,25 @@ export function ServiceForm({ service }: { service?: Service }) {
 
                 </button>
 
+
               </div>
+
             )
           )}
+
 
 
           <button
             type="button"
             className="button button--ghost admin-add-row"
             onClick={()=>
-              setForm(prev=>({
-                ...prev,
-                deliverables:[
-                  ...prev.deliverables,
+              set(
+                "deliverables",
+                [
+                  ...form.deliverables,
                   ""
                 ]
-              }))
+              )
             }
           >
 
@@ -275,7 +342,9 @@ export function ServiceForm({ service }: { service?: Service }) {
 
         </div>
 
+
       </div>
+
 
 
 
@@ -288,33 +357,185 @@ export function ServiceForm({ service }: { service?: Service }) {
 
           <div>
             <h2>
-              الصور والنشر
+              الصور
+            </h2>
+
+            <p>
+              الصورة الرئيسية ثم صور معرض الخدمة.
+            </p>
+
+          </div>
+
+        </div>
+
+
+
+        <div className="admin-form__grid">
+
+
+          <ImageUploader
+            label="الصورة الرئيسية"
+            value={form.image}
+            onChange={(media)=>
+              set(
+                "image",
+                media
+              )
+            }
+            onClear={()=>
+              set(
+                "image",
+                undefined
+              )
+            }
+            folder="services"
+          />
+
+
+
+          <ImageUploader
+            label="إضافة صورة للخدمة"
+            onChange={(media)=>
+              set(
+                "gallery",
+                [
+                  ...form.gallery,
+                  media
+                ]
+              )
+            }
+            folder="services"
+          />
+
+
+
+          {form.gallery.length > 0 && (
+
+            <div className="field field--full">
+
+              <label>
+                صور الخدمة
+              </label>
+
+
+              <div className="admin-gallery-manager">
+
+
+                {form.gallery.map(
+                  (image,index)=>(
+
+                    <div
+                      className="admin-gallery-item"
+                      key={`${image.url}-${index}`}
+                    >
+
+                      <img
+                        src={image.url}
+                        alt={
+                          image.alt ||
+                          `صورة ${index+1}`
+                        }
+                      />
+
+
+                      <div className="admin-gallery-item__actions">
+
+
+                        <button
+                          type="button"
+                          onClick={()=>
+                            moveGallery(
+                              index,
+                              -1
+                            )
+                          }
+                          disabled={
+                            index === 0
+                          }
+                        >
+                          <ArrowUp size={15}/>
+                        </button>
+
+
+
+                        <button
+                          type="button"
+                          onClick={()=>
+                            moveGallery(
+                              index,
+                              1
+                            )
+                          }
+                          disabled={
+                            index ===
+                            form.gallery.length - 1
+                          }
+                        >
+                          <ArrowDown size={15}/>
+                        </button>
+
+
+
+                        <button
+                          type="button"
+                          onClick={()=>
+                            set(
+                              "gallery",
+                              form.gallery.filter(
+                                (_,i)=>
+                                  i !== index
+                              )
+                            )
+                          }
+                        >
+                          <Trash2 size={15}/>
+                        </button>
+
+
+                      </div>
+
+
+                    </div>
+
+                  )
+                )}
+
+
+              </div>
+
+
+            </div>
+
+          )}
+
+
+
+        </div>
+
+
+      </div>
+
+
+
+
+
+      <div className="admin-form-section">
+
+        <div className="admin-form-section__head">
+
+          <span>04</span>
+
+          <div>
+            <h2>
+              النشر
             </h2>
           </div>
 
         </div>
 
 
+
         <div className="admin-form__grid">
-
-          <ImageUploader
-            label="الصورة الرئيسية"
-            value={form.image}
-            folder="services"
-            onChange={(media)=>
-              setForm(prev=>({
-                ...prev,
-                image:media
-              }))
-            }
-            onClear={()=>
-              setForm(prev=>({
-                ...prev,
-                image:undefined
-              }))
-            }
-          />
-
 
           <div className="field">
 
@@ -322,14 +543,15 @@ export function ServiceForm({ service }: { service?: Service }) {
               الحالة
             </label>
 
+
             <select
               value={form.status}
               onChange={(e)=>
-                setForm(prev=>({
-                  ...prev,
-                  status:e.target.value as
-                    "draft"|"published"
-                }))
+                set(
+                  "status",
+                  e.target.value as
+                  "draft" | "published"
+                )
               }
             >
 
@@ -354,75 +576,6 @@ export function ServiceForm({ service }: { service?: Service }) {
 
 
 
-      <div className="admin-form-section">
-
-        <div className="admin-form-section__head">
-
-          <span>04</span>
-
-          <div>
-            <h2>
-              معرض صور الخدمة
-            </h2>
-
-            <p>
-              صور إضافية للأعمال والتفاصيل.
-            </p>
-
-          </div>
-
-        </div>
-
-
-
-        <div className="admin-form__grid">
-
-
-          {form.gallery.map(
-            (image,index)=>(
-              <div key={index}>
-
-                <ImageUploader
-                  label={`صورة ${index+1}`}
-                  value={image}
-                  folder="services/gallery"
-                  onChange={(media)=>
-                    updateGalleryImage(
-                      index,
-                      media
-                    )
-                  }
-                  onClear={()=>
-                    removeGalleryImage(index)
-                  }
-                />
-
-              </div>
-            )
-          )}
-
-
-
-          <button
-            type="button"
-            className="button button--ghost"
-            onClick={addGalleryImage}
-          >
-
-            <Plus size={16}/>
-            إضافة صورة
-
-          </button>
-
-
-        </div>
-
-
-      </div>
-
-
-
-
       {message && (
         <div className="notice">
           {message}
@@ -434,7 +587,7 @@ export function ServiceForm({ service }: { service?: Service }) {
       <button
         className="button button--solid"
         style={{
-          marginTop:20
+          marginTop:22
         }}
         disabled={
           saving ||
@@ -444,11 +597,13 @@ export function ServiceForm({ service }: { service?: Service }) {
 
         {
           saving
-          ? "جاري الحفظ..."
-          : "حفظ الخدمة"
+            ? "جاري الحفظ..."
+            : "حفظ الخدمة"
         }
 
+
       </button>
+
 
 
     </form>
