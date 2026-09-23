@@ -5,6 +5,7 @@ import { PageHero } from "@/components/PageHero";
 import { getProjects, getServices } from "@/lib/firebase/data";
 import { pageMetadata } from "@/lib/seo";
 import { ProjectCard } from "@/components/ProjectCard";
+import { serviceWhatsapp } from "@/lib/whatsapp";
 
 export const metadata: Metadata = pageMetadata({
   title: "تصميم داخلي وديكور في المدينة المنورة | رُقِيّ الجمال",
@@ -147,12 +148,14 @@ export default async function MadinahInteriorDesignPage() {
               أرسل التفاصيل الأساسية ونعود لك بخطوة تالية واضحة.
             </p>
 
-            <Link
-              className="button button--solid"
-              href="/start-project"
-            >
-              ابدأ الطلب
-            </Link>
+            <a
+  className="button button--solid"
+  href={serviceWhatsapp("التصميم الداخلي في المدينة المنورة")}
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  ابدأ الطلب
+</a>
           </div>
         </div>
       </section>
