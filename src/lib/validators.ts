@@ -29,6 +29,7 @@ export const projectSchema = z.object({
   before: mediaSchema.optional(),
   after: mediaSchema.optional(),
   featured: z.boolean().default(false),
+  order: z.number().int().positive().default(1),
   status: z.enum(["draft", "published"])
 });
 
