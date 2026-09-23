@@ -1544,3 +1544,117 @@ body.is-menu-locked { overflow: hidden; overscroll-behavior: none; }
   background: #fff;
   color: var(--night);
   }
+.service-row__actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+
+
+.service-row__actions .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  min-height: 56px;
+  padding: 0 28px;
+
+  font-size: 16px;
+  text-decoration: none;
+
+  transition: all .3s ease;
+}
+
+
+/* زر عرض الخدمة */
+.button--solid {
+  background: #0c211e;
+  color: #fff;
+  border: 1px solid #0c211e;
+}
+
+
+.button--solid:hover {
+  background: #162f2b;
+}
+
+
+/* زر الواتساب */
+.button--whatsapp {
+  background: #25d366;
+  color: #fff;
+  border: 1px solid #25d366;
+}
+
+
+.button--whatsapp:hover {
+  background: #1ebe5d;
+}
+
+
+/* شكل قائمة الخدمات */
+.service-row {
+  padding: 70px 0;
+  border-bottom: 1px solid rgba(20,30,30,.15);
+
+  display: flex;
+  gap: 35px;
+  align-items: flex-start;
+}
+
+
+.service-row__number {
+  font-size: 18px;
+  color: #777;
+  min-width: 45px;
+}
+
+
+.service-row__content {
+  flex: 1;
+}
+
+
+.service-row__content h2 {
+  margin: 0 0 18px;
+  font-size: clamp(32px,4vw,52px);
+  line-height: 1.2;
+}
+
+
+.service-row__content p {
+  max-width: 650px;
+  font-size: 20px;
+  line-height: 2;
+  color: #666;
+}
+
+
+/* موبايل */
+@media(max-width:768px){
+
+  .service-row {
+    display:block;
+    padding:50px 0;
+  }
+
+
+  .service-row__number {
+    margin-bottom:15px;
+  }
+
+
+  .service-row__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+
+  .service-row__actions .button {
+    width:100%;
+  }
+
+}
