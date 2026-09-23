@@ -301,7 +301,276 @@ export function ProjectForm({ project }: { project?: Project }) {
       </div>
 
 
-      {/* باقي الصفحة كما هي بدون تغيير */}
+            <div className="admin-form-section">
+
+        <div className="admin-form-section__head">
+          <span>02</span>
+
+          <div>
+            <h2>
+              الصور
+            </h2>
+
+            <p>
+              الصورة الرئيسية وصور المشروع بالترتيب المطلوب.
+            </p>
+          </div>
+
+        </div>
+
+
+        <div className="admin-form__grid">
+
+
+          <ImageUploader
+            label="الصورة الرئيسية"
+            value={form.cover as UploadedMedia | undefined}
+            onChange={(media) =>
+              set(
+                "cover",
+                media
+              )
+            }
+            onClear={() =>
+              set(
+                "cover",
+                undefined
+              )
+            }
+            folder="projects"
+          />
+
+
+
+          <ImageUploader
+            label="إضافة صورة للجاليري"
+            onChange={(media) =>
+              set(
+                "gallery",
+                [
+                  ...form.gallery,
+                  media
+                ]
+              )
+            }
+            folder="projects"
+          />
+
+
+
+          {form.gallery.length > 0 && (
+
+            <div className="field field--full">
+
+              <label>
+                صور المشروع
+              </label>
+
+
+              <div className="admin-gallery-manager">
+
+
+                {form.gallery.map(
+                  (image,index)=>(
+                    
+                    <div
+                      className="admin-gallery-item"
+                      key={`${image.url}-${index}`}
+                    >
+
+                      <img
+                        src={image.url}
+                        alt={
+                          image.alt ||
+                          `صورة ${index + 1}`
+                        }
+                      />
+
+
+                      <div className="admin-gallery-item__actions">
+
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            moveGallery(
+                              index,
+                              -1
+                            )
+                          }
+                          disabled={
+                            index === 0
+                          }
+                        >
+                          <ArrowUp size={15}/>
+                        </button>
+
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            moveGallery(
+                              index,
+                              1
+                            )
+                          }
+                          disabled={
+                            index === form.gallery.length - 1
+                          }
+                        >
+                          <ArrowDown size={15}/>
+                        </button>
+
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            set(
+                              "gallery",
+                              form.gallery.filter(
+                                (_,i)=>i !== index
+                              )
+                            )
+                          }
+                        >
+                          <Trash2 size={15}/>
+                        </button>
+
+
+                      </div>
+
+
+                    </div>
+
+                  )
+                )}
+
+              </div>
+
+            </div>
+
+          )}
+
+
+
+          <ImageUploader
+            label="صورة قبل - اختياري"
+            value={form.before as UploadedMedia | undefined}
+            onChange={(media) =>
+              set(
+                "before",
+                media
+              )
+            }
+            onClear={() =>
+              set(
+                "before",
+                undefined
+              )
+            }
+            folder="projects"
+          />
+
+
+
+          <ImageUploader
+            label="صورة بعد - اختياري"
+            value={form.after as UploadedMedia | undefined}
+            onChange={(media) =>
+              set(
+                "after",
+                media
+              )
+            }
+            onClear={() =>
+              set(
+                "after",
+                undefined
+              )
+            }
+            folder="projects"
+          />
+
+        </div>
+
+      </div>
+
+
+
+      <div className="admin-form-section">
+
+        <div className="admin-form-section__head">
+          <span>03</span>
+
+          <div>
+            <h2>
+              النشر
+            </h2>
+          </div>
+
+        </div>
+
+
+        <div className="admin-form__grid">
+
+          <div className="field">
+
+            <label>
+              الحالة
+            </label>
+
+
+            <select
+              value={form.status}
+              onChange={(e)=>
+                set(
+                  "status",
+                  e.target.value as
+                  "draft" | "published"
+                )
+              }
+            >
+
+              <option value="draft">
+                مسودة
+              </option>
+
+              <option value="published">
+                منشور
+              </option>
+
+            </select>
+
+
+          </div>
+
+
+          <label className="field admin-check-field">
+
+            <span>
+              إظهاره ضمن المشاريع المختارة في الرئيسية
+            </span>
+
+            <input
+              type="checkbox"
+              checked={form.featured}
+              onChange={(e)=>
+                set(
+                  "featured",
+                  e.target.checked
+                )
+              }
+            />
+
+          </label>
+
+
+        </div>
+
+      </div>
+
+
+    
       
       {message && (
         <div className="notice">
