@@ -8,15 +8,31 @@ import { nextOrder, uniqueSlug } from "@/lib/content-utils";
 export async function POST(request: NextRequest) {
   if (!(await isAdminRequest())) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
-  const parsed = projectSchema.safeParse(await request.json());
-  if (!parsed.success) return NextResponse.json({ error: "راجع بيانات المشروع" }, { status: 422 });
+  const body = await request.json();
 
+const parsed = projectSchema.safeParse(body);
+
+if (!parsed.success) {
+  return NextResponse.json(
+    {
+      error: parsed.error.issues
+        .map((issue) => issue.message)
+        .join(" - ")
+    },
+    {
+      status: 422
+    }
+  );
+}
   const db = getAdminDb();
   if (!db) return NextResponse.json({ error: "تعذر الحفظ حاليا" }, { status: 503 });
 
   const ref = db.collection("projects").doc();
   const slug = await uniqueSlug(db, "projects", parsed.data.title);
-  const order = parsed.data.order ?? await nextOrder(db, "projects");
+  const order =
+  parsed.data.order > 0
+    ? parsed.data.order
+    : await nextOrder(db, "projects");
   const now = new Date().toISOString();
 
   const data = {
