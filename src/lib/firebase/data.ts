@@ -219,16 +219,18 @@ export async function getServiceBySlug(
       const doc =
         snapshot.docs[0];
 
-      const service =
-        normalize<Service>(
-          doc.id,
-          doc.data()
-        );
+      const service = {
+  ...normalize<Service>(
+    doc.id,
+    doc.data()
+  ),
+  gallery: doc.data().gallery || []
+};
 
-      return service.status ===
-        "published"
-        ? service
-        : null;
+
+return service.status === "published"
+  ? service
+  : null;
     }
 
     /*
