@@ -130,28 +130,24 @@ export default async function ServicePage({
 
             <div className="service-actions">
 
-
-              <a
-                className="button button--whatsapp"
-                href={serviceWhatsapp(service.title)}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                اطلب الخدمة عبر واتساب
-              </a>
-
+  <a
+    className="button button--whatsapp"
+    href={serviceWhatsapp(service.title)}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    اطلب الخدمة عبر واتساب
+  </a>
 
 
-              <Link
-                className="button button--outline"
-                href="/services"
-              >
-                العودة للخدمات
-              </Link>
+  <Link
+    className="button button--back-service"
+    href="/services"
+  >
+    العودة للخدمات
+  </Link>
 
-
-            </div>
-
+</div>
 
           </div>
 
