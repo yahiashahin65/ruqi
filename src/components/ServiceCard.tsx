@@ -24,7 +24,10 @@ export function ServiceCard({
 
         <Image
           src={service.image.url}
-          alt={service.image.alt || service.title}
+          alt={
+            service.image.alt ||
+            service.title
+          }
           fill
           sizes="(max-width: 680px) 90vw, (max-width: 1100px) 45vw, 55vw"
         />
@@ -35,7 +38,6 @@ export function ServiceCard({
         </span>
 
       </Link>
-
 
 
       <div className="project-card__meta">
@@ -54,17 +56,14 @@ export function ServiceCard({
           </p>
 
 
-
           <div className="project-card__actions">
-
 
             <Link
               href={`/services/${service.slug}`}
               className="button button--solid"
             >
-              عرض الخدمة
+              تفاصيل الخدمة
             </Link>
-
 
 
             <a
@@ -76,11 +75,16 @@ export function ServiceCard({
               اطلب الخدمة
             </a>
 
-
           </div>
 
 
         </div>
+
+
+        <span>
+          {service.eyebrow}
+        </span>
+
 
       </div>
 
