@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import {
   Ghost,
   MessageCircle,
@@ -38,6 +37,7 @@ export default async function ContactPage() {
 
       <section className="section">
         <div className="shell contact-grid">
+
           <div>
             <h2 className="contact-big">
               المدينة
@@ -45,7 +45,9 @@ export default async function ContactPage() {
               المنورة
             </h2>
 
+
             <div className="contact-list">
+
               <a href={`tel:${settings.phone}`}>
                 <span
                   style={{
@@ -54,7 +56,10 @@ export default async function ContactPage() {
                     gap: "10px"
                   }}
                 >
-                  <Phone size={19} strokeWidth={1.7} />
+                  <Phone
+                    size={19}
+                    strokeWidth={1.7}
+                  />
                   اتصال
                 </span>
 
@@ -62,6 +67,8 @@ export default async function ContactPage() {
                   {settings.phone}
                 </strong>
               </a>
+
+
 
               <a
                 href={`https://wa.me/${settings.whatsapp}`}
@@ -87,31 +94,33 @@ export default async function ContactPage() {
                 </strong>
               </a>
 
-              {settings.tiktok && (
-                <a
-                  href={settings.tiktok}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <span
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "10px"
-                    }}
-                  >
-                    <Music2
-                      size={19}
-                      strokeWidth={1.7}
-                    />
-                    تيك توك
-                  </span>
 
-                  <strong>
-                    تابعنا
-                  </strong>
-                </a>
-              )}
+
+              <a
+                href="https://www.tiktok.com/@laqeinaha.lak?_r=1&_t=ZS-99ytgzsSo5s"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "10px"
+                  }}
+                >
+                  <Music2
+                    size={19}
+                    strokeWidth={1.7}
+                  />
+                  تيك توك
+                </span>
+
+                <strong>
+                  تابعنا
+                </strong>
+              </a>
+
+
 
               {settings.snapchat && (
                 <a
@@ -139,6 +148,8 @@ export default async function ContactPage() {
                 </a>
               )}
 
+
+
               <div>
                 <span>
                   ساعات العمل
@@ -148,32 +159,44 @@ export default async function ContactPage() {
                   {settings.businessHours}
                 </strong>
               </div>
+
+
             </div>
           </div>
 
+
+
           <div className="prose">
+
             <p className="eyebrow">
               للطلبات الجديدة
             </p>
 
+
             <h2>
               كلما كانت البداية واضحة، كان ردنا أدق.
             </h2>
+
 
             <p>
               شاركنا نوع المشروع والخدمة المطلوبة والمساحة
               التقريبية، ويمكنك إرفاق صور أو مخطط إذا كان متاحا.
             </p>
 
+
             <a
-  className="button button--solid"
-  href={projectWhatsapp()}
-  target="_blank"
-  rel="noopener noreferrer"
->
-  ابدأ مشروعك
-</a>
+              className="button button--solid"
+              href={projectWhatsapp()}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ابدأ مشروعك
+            </a>
+
+
           </div>
+
+
         </div>
       </section>
     </main>
