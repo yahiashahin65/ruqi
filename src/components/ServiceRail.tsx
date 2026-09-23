@@ -54,14 +54,26 @@ export function ServiceRail({ services }: { services: Service[] }) {
           <p>{service.excerpt}</p>
 
 
-          <a
-            href={serviceWhatsapp(service.title)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="service-request-button"
-          >
-            اطلب هذه الخدمة
-          </a>
+          <div className="service-actions">
+
+            <a
+              href={serviceWhatsapp(service.title)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="button button--whatsapp"
+            >
+              اطلب الخدمة عبر واتساب
+            </a>
+
+
+            <Link
+              href={`/services/${service.slug}`}
+              className="button button--outline"
+            >
+              تفاصيل الخدمة
+            </Link>
+
+          </div>
 
 
         </div>
