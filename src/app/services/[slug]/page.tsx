@@ -42,14 +42,25 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
                 <ul className="deliverables">{service.deliverables.map((item) => <li key={item}>{item}</li>)}</ul>
               </>
             )}
-            <a
-  className="button"
-  href={serviceWhatsapp(service.title)}
-  target="_blank"
-  rel="noopener noreferrer"
->
-  اطلب الخدمة
-</a>
+            <div className="service-actions">
+
+  <a
+    className="button button--whatsapp"
+    href={serviceWhatsapp(service.title)}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    اطلب الخدمة عبر واتساب
+  </a>
+
+  <Link
+    className="button button--outline"
+    href="/services"
+  >
+    تفاصيل الخدمات
+  </Link>
+
+</div>
           </div>
         </div>
       </section>
