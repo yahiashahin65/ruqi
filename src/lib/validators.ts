@@ -38,6 +38,7 @@ export const serviceSchema = z.object({
   body: z.string().min(20).max(7000),
   deliverables: z.array(z.string().min(1).max(140)).max(30).default([]),
   image: mediaSchema,
+  gallery: z.array(mediaSchema).max(30).default([]),
   status: z.enum(["draft", "published"])
 });
 
