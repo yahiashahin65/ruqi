@@ -1511,3 +1511,36 @@ body.is-menu-locked { overflow: hidden; overscroll-behavior: none; }
   border-color: #1ebe5d;
   color: #fff;
 }
+.service-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.service-actions .button {
+  min-height: 46px;
+}
+
+.button--whatsapp {
+  background: #25D366;
+  border-color: #25D366;
+  color: #fff;
+}
+
+.button--whatsapp:hover {
+  background: #1ebe5d;
+  border-color: #1ebe5d;
+  color: #fff;
+}
+
+.button--outline {
+  background: transparent;
+  color: var(--paper);
+  border-color: rgba(255,255,255,.45);
+}
+
+.button--outline:hover {
+  background: #fff;
+  color: var(--night);
+  }
