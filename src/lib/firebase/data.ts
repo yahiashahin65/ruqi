@@ -105,14 +105,18 @@ export const getProjects =
 
 export async function getProjectBySlug(
   slug: string
-) {
+): Promise<Project | null> {
+
+  const normalizedSlug =
+    normalizeSlug(slug);
+
   const projects =
     await getProjects();
 
   return (
     projects.find(
       (project) =>
-        project.slug === slug
+        normalizeSlug(project.slug) === normalizedSlug
     ) || null
   );
 }
