@@ -412,9 +412,110 @@ main { overflow: clip; }
 .filter-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 55px; }
 .filter-row a { border: 1px solid var(--line); padding: 8px 14px; font-size: 12px; transition: .22s ease; }
 .filter-row a:hover, .filter-row a.is-active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-.project-detail__hero { padding-top: 82px; }
-.project-detail__hero-image { position: relative; height: min(78vh, 820px); overflow: hidden; }
-.project-detail__hero-image img { object-fit: cover; }
+/* =========================================================
+   Project Detail Page
+   ========================================================= */
+
+.project-detail__hero {
+  padding-top: 88px;
+}
+
+/* Main project cover */
+.project-detail__hero-image {
+  position: relative;
+  width: 100%;
+  height: min(72vh, 760px);
+  overflow: hidden;
+  background: var(--paper-3);
+}
+
+.project-detail__hero-image img {
+  object-fit: cover;
+  object-position: center center;
+}
+
+
+/* Project information */
+.project-detail__intro {
+  display: grid;
+  grid-template-columns: .35fr 1fr .5fr;
+  gap: 32px;
+  padding: 55px 0 95px;
+}
+
+.project-detail__intro h1 {
+  font-size: clamp(46px, 6vw, 88px);
+  line-height: 1.05;
+  font-weight: 500;
+  margin: 0;
+  letter-spacing: 0;
+}
+
+.project-detail__intro p {
+  color: rgba(20,34,31,.65);
+  margin: 8px 0 0;
+}
+
+.project-detail__facts {
+  display: grid;
+  gap: 10px;
+  font-size: 12px;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.project-detail__facts div {
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  border-bottom:1px solid var(--line);
+  padding-bottom:9px;
+}
+
+
+/* Mobile */
+@media (max-width:680px){
+
+  .project-detail__hero {
+    padding-top:70px;
+  }
+
+
+  /*
+     Fix image zoom/crop on mobile
+     */
+  .project-detail__hero-image {
+
+    height: 46vh;
+    min-height: 320px;
+
+  }
+
+
+  .project-detail__hero-image img {
+
+    object-position:center 35%;
+
+  }
+
+
+  .project-detail__intro {
+
+    grid-template-columns:1fr;
+    gap:24px;
+    padding:42px 0 70px;
+
+  }
+
+
+  .project-detail__intro h1 {
+
+    font-size:clamp(40px,11vw,62px);
+    line-height:1.15;
+
+  }
+
+}
 .project-detail__intro { display: grid; grid-template-columns: .35fr 1fr .5fr; gap: 32px; padding: 55px 0 95px; }
 .project-detail__intro h1 { font-size: clamp(46px, 6vw, 88px); line-height: 1.05; font-weight: 500; margin: 0; letter-spacing: 0; }
 .project-detail__intro p { color: rgba(20, 34, 31, .65); margin: 8px 0 0; }
