@@ -10,6 +10,7 @@ import {
 import { PageHero } from "@/components/PageHero";
 import { getPublicSettings } from "@/lib/firebase/data";
 import { pageMetadata } from "@/lib/seo";
+import { projectWhatsapp } from "@/lib/whatsapp";
 
 export const metadata: Metadata = pageMetadata({
   title: "تواصل مع رُقِيّ الجمال | تصميم داخلي في المدينة المنورة",
@@ -164,12 +165,14 @@ export default async function ContactPage() {
               التقريبية، ويمكنك إرفاق صور أو مخطط إذا كان متاحا.
             </p>
 
-            <Link
-              className="button button--solid"
-              href="/start-project"
-            >
-              ابدأ مشروعك
-            </Link>
+            <a
+  className="button button--solid"
+  href={projectWhatsapp()}
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  ابدأ مشروعك
+</a>
           </div>
         </div>
       </section>
