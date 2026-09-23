@@ -1398,3 +1398,63 @@ body.is-menu-locked { overflow: hidden; overscroll-behavior: none; }
   }
 
 }
+/* =========================================================
+   Floating Contact Buttons
+   ========================================================= */
+
+.floating-contact {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+
+.floating-contact__button {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: 0 12px 30px rgba(0,0,0,.18);
+  transition:
+    transform .25s ease,
+    box-shadow .25s ease;
+}
+
+
+.floating-contact__button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 35px rgba(0,0,0,.25);
+}
+
+
+.floating-contact__button--whatsapp {
+  background: #25D366;
+}
+
+
+.floating-contact__button--phone {
+  background: var(--ink);
+}
+
+
+@media(max-width:680px){
+
+  .floating-contact {
+    right: 16px;
+    bottom: 18px;
+  }
+
+
+  .floating-contact__button {
+    width: 52px;
+    height: 52px;
+  }
+
+  }
