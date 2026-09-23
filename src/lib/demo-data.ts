@@ -124,6 +124,7 @@ export const demoServices: Service[] = [
     body: "نبدأ بفهم طريقة استخدامك للمكان قبل اختيار أي خامة. نحول الاحتياجات إلى مخطط واضح، ثم Concept بصري و3D ومخططات تنفيذية وجداول مواد تساعد المشروع على الانتقال إلى الموقع بأقل مفاجآت ممكنة.",
     deliverables: ["Space planning", "Mood & material direction", "3D visualization", "Lighting concept", "Construction drawings", "FF&E schedule"],
     image: img("photo-1618221195710-dd6b41faaea6", "تصميم داخلي"),
+    gallery: [],
     order: 1,
     status: "published"
   },
@@ -136,6 +137,7 @@ export const demoServices: Service[] = [
     body: "نحوّل التصميم إلى نطاق تنفيذي مضبوط: عينات، جداول كميات، تنسيق الموردين، زيارات الموقع، مراجعة الجودة، وإقفال الملاحظات حتى التسليم.",
     deliverables: ["BOQ support", "Material approvals", "Site coordination", "Quality reviews", "Snagging", "Handover"],
     image: img("photo-1600566753086-00f18fb6b3ea", "تنفيذ وتشطيبات داخلية"),
+    gallery: [],
     order: 2,
     status: "published"
   },
@@ -148,6 +150,7 @@ export const demoServices: Service[] = [
     body: "نقيّم الفراغ القائم فنيا ووظيفيا، ثم نحدد ما يمكن الاحتفاظ به وما يحتاج الاستبدال. الهدف تجديد واضح الأثر من دون هدم غير ضروري أو إنفاق بلا عائد.",
     deliverables: ["Existing condition audit", "Renovation concept", "Phasing plan", "Finishes refresh", "MEP coordination", "Execution support"],
     image: img("photo-1600607687939-ce8a6c25118c", "تجديد داخلي"),
+    gallery: [],
     order: 3,
     status: "published"
   },
@@ -160,6 +163,7 @@ export const demoServices: Service[] = [
     body: "في المشاريع التجارية لا يكفي أن يكون المكان جميلا؛ يجب أن يعمل. ندرس رحلة العميل، سرعة الخدمة، نقاط العرض، التخزين، الصيانة، والهوية البصرية قبل تكوين الشكل النهائي.",
     deliverables: ["Customer journey", "Operational zoning", "Brand translation", "Material strategy", "Wayfinding", "Site execution"],
     image: img("photo-1555396273-367ea4eb4db5", "تصميم تجاري"),
+    gallery: [],
     order: 4,
     status: "published"
   }
