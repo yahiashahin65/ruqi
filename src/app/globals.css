@@ -1658,3 +1658,31 @@ body.is-menu-locked { overflow: hidden; overscroll-behavior: none; }
   }
 
 }
+.article-card__actions {
+  display:flex;
+  gap:14px;
+  margin-top:25px;
+  flex-wrap:wrap;
+}
+
+.article-card__actions .button {
+  min-height:52px;
+  padding:0 24px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+
+
+@media(max-width:768px){
+
+.article-card__actions {
+ flex-direction:column;
+}
+
+.article-card__actions .button {
+ width:100%;
+}
+
+}
