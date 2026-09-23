@@ -3,9 +3,9 @@ import {
   ArrowUpLeft,
   Ghost,
   MessageCircle,
-  Music2,
   Phone
 } from "lucide-react";
+import { FaTiktok } from "react-icons/fa";
 
 import { getPublicSettings } from "@/lib/firebase/data";
 import { projectWhatsapp } from "@/lib/whatsapp";
@@ -43,6 +43,7 @@ export async function Footer() {
           <p>المدينة المنورة</p>
 
           <div className="footer__socials">
+
             <a
               href={`tel:${settings.phone}`}
               aria-label="اتصال"
@@ -53,6 +54,7 @@ export async function Footer() {
                 strokeWidth={1.7}
               />
             </a>
+
 
             <a
               href={`https://wa.me/${settings.whatsapp}`}
@@ -67,20 +69,17 @@ export async function Footer() {
               />
             </a>
 
-            {settings.tiktok && (
-              <a
-                href={settings.tiktok}
-                target="_blank"
-                rel="noreferrer"
-                aria-label="تيك توك"
-                title="تيك توك"
-              >
-                <Music2
-                  size={20}
-                  strokeWidth={1.7}
-                />
-              </a>
-            )}
+
+            <a
+              href="https://www.tiktok.com/@laqeinaha.lak?_r=1&_t=ZS-99ytgzsSo5s"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="تيك توك"
+              title="تيك توك"
+            >
+              <FaTiktok size={18} />
+            </a>
+
 
             {settings.snapchat && (
               <a
@@ -96,6 +95,7 @@ export async function Footer() {
                 />
               </a>
             )}
+
           </div>
 
           <a href={`tel:${settings.phone}`}>
@@ -103,6 +103,7 @@ export async function Footer() {
           </a>
         </div>
       </div>
+
 
       <div className="shell footer__bottom">
         <BrandMark inverted />
