@@ -3,9 +3,9 @@ import {
   ArrowUpLeft,
   Ghost,
   MessageCircle,
+  Music2,
   Phone
 } from "lucide-react";
-import { FaTiktok } from "react-icons/fa";
 
 import { getPublicSettings } from "@/lib/firebase/data";
 import { projectWhatsapp } from "@/lib/whatsapp";
@@ -77,7 +77,10 @@ export async function Footer() {
               aria-label="تيك توك"
               title="تيك توك"
             >
-              <FaTiktok size={18} />
+              <Music2
+                size={20}
+                strokeWidth={1.7}
+              />
             </a>
 
 
