@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowUpLeft } from "lucide-react";
 import { Hero } from "@/components/Hero";
 import { ProjectCard } from "@/components/ProjectCard";
-import { ServiceRail } from "@/components/ServiceRail";
+import { ServiceCard } from "@/components/ServiceCard";
 import { StudioStatement } from "@/components/StudioStatement";
 import { ProcessStrip } from "@/components/ProcessStrip";
 import { BeforeAfter } from "@/components/BeforeAfter";
@@ -21,7 +21,7 @@ export default async function HomePage() {
 
   const selectedProjects = featured.length
     ? featured
-    : projects.slice(0, 4);
+    : projects.slice(0, 10);
 
   const caseStudy = projects[0];
 
@@ -127,7 +127,59 @@ export default async function HomePage() {
 
       <StudioStatement />
 
-      <ServiceRail services={services} />
+      <section
+  className="selected-work"
+  id="services"
+>
+  <div className="shell">
+
+    <div
+      className="selected-work__top"
+      data-reveal
+    >
+      <div>
+        <p className="eyebrow">
+          خدماتنا
+        </p>
+
+        <h2>
+          حلول التصميم والتنفيذ
+        </h2>
+      </div>
+
+      <p>
+        نقدم خدمات متكاملة تبدأ من دراسة المساحة
+        والتصميم وحتى التنفيذ والتسليم.
+      </p>
+    </div>
+
+
+    <div className="projects-editorial">
+
+      {services
+        .slice(0, 10)
+        .map((service, index) => (
+          <ServiceCard
+            key={service.id}
+            service={service}
+            index={index}
+          />
+        ))}
+
+    </div>
+
+
+    <Link
+      className="text-link"
+      href="/services"
+    >
+      جميع الخدمات
+      <ArrowUpLeft size={18} />
+    </Link>
+
+
+  </div>
+</section>
 
       {caseStudy && (
         <section className="home-case">
