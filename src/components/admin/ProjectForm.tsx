@@ -45,12 +45,16 @@ function initialState(project?: Project): ProjectEditor {
     before: project?.before,
     after: project?.after,
     featured: project?.featured || false,
-    order: project?.order || 1,
+    order: project?.order ?? 1,
     status: project?.status || "draft"
   };
 }
 
-export function ProjectForm({ project }: { project?: Project }) {
+export function ProjectForm({
+  project
+}: {
+  project?: Project;
+}) {
   const router = useRouter();
 
   const [form, setForm] = useState<ProjectEditor>(() =>
@@ -59,6 +63,7 @@ export function ProjectForm({ project }: { project?: Project }) {
 
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
+
 
   const set = <K extends keyof ProjectEditor>(
     key: K,
@@ -69,6 +74,7 @@ export function ProjectForm({ project }: { project?: Project }) {
       [key]: value
     }));
   };
+
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
@@ -95,18 +101,24 @@ export function ProjectForm({ project }: { project?: Project }) {
           duration: form.duration,
           excerpt: form.excerpt,
           story: form.story,
+
           cover: form.cover,
           gallery: form.gallery,
           before: form.before,
           after: form.after,
+
           featured: form.featured,
-          order: form.order,
+
+          order: Number(form.order),
+
           status: form.status
         })
       }
     );
 
+
     const data = await response.json();
+
 
     if (!response.ok) {
       setMessage(
@@ -117,11 +129,10 @@ export function ProjectForm({ project }: { project?: Project }) {
       router.refresh();
     }
 
+
     setSaving(false);
-  }
-
-
-  function moveGallery(
+    }
+      function moveGallery(
     index: number,
     direction: -1 | 1
   ) {
@@ -179,6 +190,7 @@ export function ProjectForm({ project }: { project?: Project }) {
         <div className="admin-form__grid">
 
           <div className="field field--full">
+
             <label>
               اسم المشروع
             </label>
@@ -193,10 +205,12 @@ export function ProjectForm({ project }: { project?: Project }) {
               }
               required
             />
+
           </div>
 
 
           <div className="field">
+
             <label>
               نوع المشروع
             </label>
@@ -210,6 +224,7 @@ export function ProjectForm({ project }: { project?: Project }) {
                 )
               }
             >
+
               {projectTypes.map((item)=>(
                 <option
                   key={item.value}
@@ -218,11 +233,15 @@ export function ProjectForm({ project }: { project?: Project }) {
                   {item.label}
                 </option>
               ))}
+
             </select>
+
           </div>
 
 
+
           <div className="field">
+
             <label>
               ترتيب العرض
             </label>
@@ -234,14 +253,19 @@ export function ProjectForm({ project }: { project?: Project }) {
               onChange={(e)=>
                 set(
                   "order",
-                  Number(e.target.value)
+                  e.target.value
+                    ? Number(e.target.value)
+                    : 1
                 )
               }
             />
+
           </div>
 
 
+
           <div className="field">
+
             <label>
               الأسلوب - اختياري
             </label>
@@ -256,10 +280,13 @@ export function ProjectForm({ project }: { project?: Project }) {
               }
               placeholder="مثال: معاصر دافئ"
             />
+
           </div>
 
 
+
           <div className="field">
+
             <label>
               المساحة التقريبية - اختياري
             </label>
@@ -276,10 +303,13 @@ export function ProjectForm({ project }: { project?: Project }) {
               }
               placeholder="م²"
             />
+
           </div>
 
 
+
           <div className="field">
+
             <label>
               مدة التنفيذ - اختياري
             </label>
@@ -294,29 +324,109 @@ export function ProjectForm({ project }: { project?: Project }) {
               }
               placeholder="مثال: 4 أشهر"
             />
+
           </div>
+
 
         </div>
 
       </div>
 
 
-            <div className="admin-form-section">
+
+      <div className="admin-form-section">
 
         <div className="admin-form-section__head">
+
           <span>02</span>
 
           <div>
+
+            <h2>
+              المحتوى
+            </h2>
+
+            <p>
+              وصف المشروع وقصته.
+            </p>
+
+          </div>
+
+        </div>
+
+
+
+        <div className="admin-form__grid">
+
+
+          <div className="field field--full">
+
+            <label>
+              الوصف المختصر
+            </label>
+
+            <textarea
+              value={form.excerpt}
+              onChange={(e)=>
+                set(
+                  "excerpt",
+                  e.target.value
+                )
+              }
+              required
+            />
+
+          </div>
+
+
+
+          <div className="field field--full">
+
+            <label>
+              عن المشروع
+            </label>
+
+            <textarea
+              className="admin-textarea--large"
+              value={form.story}
+              onChange={(e)=>
+                set(
+                  "story",
+                  e.target.value
+                )
+              }
+              required
+            />
+
+          </div>
+
+
+        </div>
+
+      </div>
+
+
+
+      <div className="admin-form-section">
+
+        <div className="admin-form-section__head">
+
+          <span>03</span>
+
+          <div>
+
             <h2>
               الصور
             </h2>
 
             <p>
-              الصورة الرئيسية وصور المشروع بالترتيب المطلوب.
+              الصورة الرئيسية والجاليري وصور قبل وبعد.
             </p>
+
           </div>
 
         </div>
+
 
 
         <div className="admin-form__grid">
@@ -324,14 +434,16 @@ export function ProjectForm({ project }: { project?: Project }) {
 
           <ImageUploader
             label="الصورة الرئيسية"
-            value={form.cover as UploadedMedia | undefined}
-            onChange={(media) =>
+            value={
+              form.cover as UploadedMedia | undefined
+            }
+            onChange={(media)=>
               set(
                 "cover",
                 media
               )
             }
-            onClear={() =>
+            onClear={()=>
               set(
                 "cover",
                 undefined
@@ -344,7 +456,7 @@ export function ProjectForm({ project }: { project?: Project }) {
 
           <ImageUploader
             label="إضافة صورة للجاليري"
-            onChange={(media) =>
+            onChange={(media)=>
               set(
                 "gallery",
                 [
@@ -369,7 +481,6 @@ export function ProjectForm({ project }: { project?: Project }) {
 
               <div className="admin-gallery-manager">
 
-
                 {form.gallery.map(
                   (image,index)=>(
                     
@@ -392,15 +503,10 @@ export function ProjectForm({ project }: { project?: Project }) {
 
                         <button
                           type="button"
-                          onClick={() =>
-                            moveGallery(
-                              index,
-                              -1
-                            )
+                          onClick={()=>
+                            moveGallery(index,-1)
                           }
-                          disabled={
-                            index === 0
-                          }
+                          disabled={index===0}
                         >
                           <ArrowUp size={15}/>
                         </button>
@@ -408,11 +514,8 @@ export function ProjectForm({ project }: { project?: Project }) {
 
                         <button
                           type="button"
-                          onClick={() =>
-                            moveGallery(
-                              index,
-                              1
-                            )
+                          onClick={()=>
+                            moveGallery(index,1)
                           }
                           disabled={
                             index === form.gallery.length - 1
@@ -424,11 +527,11 @@ export function ProjectForm({ project }: { project?: Project }) {
 
                         <button
                           type="button"
-                          onClick={() =>
+                          onClick={()=>
                             set(
                               "gallery",
                               form.gallery.filter(
-                                (_,i)=>i !== index
+                                (_,i)=>i!==index
                               )
                             )
                           }
@@ -447,6 +550,7 @@ export function ProjectForm({ project }: { project?: Project }) {
 
               </div>
 
+
             </div>
 
           )}
@@ -455,14 +559,16 @@ export function ProjectForm({ project }: { project?: Project }) {
 
           <ImageUploader
             label="صورة قبل - اختياري"
-            value={form.before as UploadedMedia | undefined}
-            onChange={(media) =>
+            value={
+              form.before as UploadedMedia | undefined
+            }
+            onChange={(media)=>
               set(
                 "before",
                 media
               )
             }
-            onClear={() =>
+            onClear={()=>
               set(
                 "before",
                 undefined
@@ -475,14 +581,16 @@ export function ProjectForm({ project }: { project?: Project }) {
 
           <ImageUploader
             label="صورة بعد - اختياري"
-            value={form.after as UploadedMedia | undefined}
-            onChange={(media) =>
+            value={
+              form.after as UploadedMedia | undefined
+            }
+            onChange={(media)=>
               set(
                 "after",
                 media
               )
             }
-            onClear={() =>
+            onClear={()=>
               set(
                 "after",
                 undefined
@@ -491,16 +599,14 @@ export function ProjectForm({ project }: { project?: Project }) {
             folder="projects"
           />
 
+
         </div>
 
       </div>
-
-
-
-      <div className="admin-form-section">
+            <div className="admin-form-section">
 
         <div className="admin-form-section__head">
-          <span>03</span>
+          <span>04</span>
 
           <div>
             <h2>
@@ -518,7 +624,6 @@ export function ProjectForm({ project }: { project?: Project }) {
             <label>
               الحالة
             </label>
-
 
             <select
               value={form.status}
@@ -540,7 +645,6 @@ export function ProjectForm({ project }: { project?: Project }) {
               </option>
 
             </select>
-
 
           </div>
 
@@ -570,13 +674,12 @@ export function ProjectForm({ project }: { project?: Project }) {
       </div>
 
 
-    
-      
       {message && (
         <div className="notice">
           {message}
         </div>
       )}
+
 
 
       <button
@@ -589,13 +692,16 @@ export function ProjectForm({ project }: { project?: Project }) {
           !form.cover?.url
         }
       >
+
         {
           saving
             ? "جاري الحفظ..."
             : "حفظ المشروع"
         }
+
       </button>
+
 
     </form>
   );
-}
+          }
