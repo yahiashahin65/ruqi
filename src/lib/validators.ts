@@ -26,8 +26,8 @@ export const projectSchema = z.object({
   story: z.string().min(20).max(7000),
   cover: mediaSchema,
   gallery: z.array(mediaSchema).max(30).default([]),
-  before: mediaSchema.optional(),
-  after: mediaSchema.optional(),
+  before: mediaSchema.nullable().optional(),
+after: mediaSchema.nullable().optional(),
   featured: z.boolean().default(false),
   order: z.coerce
   .number({
