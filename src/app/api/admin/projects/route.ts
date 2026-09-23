@@ -16,7 +16,9 @@ export async function POST(request: NextRequest) {
 
   const ref = db.collection("projects").doc();
   const slug = await uniqueSlug(db, "projects", parsed.data.title);
-  const order = await nextOrder(db, "projects");
+  const order =
+  parsed.data.order ||
+  await nextOrder(db, "projects");
   const now = new Date().toISOString();
 
   const data = {
