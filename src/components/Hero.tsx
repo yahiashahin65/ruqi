@@ -6,15 +6,22 @@ import {
 } from "lucide-react";
 
 import { projectWhatsapp } from "@/lib/whatsapp";
+import { isBadImageAlt } from "@/lib/auto-seo";
 
 type HeroImage = {
   url: string;
   alt?: string;
 };
 
+const HERO_FALLBACK_ALT =
+  "مشروع تصميم داخلي وديكور في المدينة المنورة من رقي الجمال";
+
 const fallbackImage: HeroImage = {
-  url: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=2400&q=92",
-  alt: "تصميم داخلي عصري في المدينة المنورة"
+  url:
+    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=2400&q=92",
+
+  alt:
+    "تصميم داخلي عصري في المدينة المنورة"
 };
 
 export function Hero({
@@ -23,7 +30,16 @@ export function Hero({
   image?: HeroImage;
 }) {
   const heroImage =
-    image?.url ? image : fallbackImage;
+    image?.url
+      ? image
+      : fallbackImage;
+
+  const imageAlt =
+    !isBadImageAlt(
+      heroImage.alt
+    )
+      ? heroImage.alt!
+      : HERO_FALLBACK_ALT;
 
   return (
     <section
@@ -37,17 +53,17 @@ export function Hero({
       >
         <Image
           src={heroImage.url}
-          alt={
-            heroImage.alt ||
-            "مشروع تصميم داخلي وديكور في المدينة المنورة من رقي الجمال"
-          }
+          alt={imageAlt}
           fill
           priority
           sizes="100vw"
         />
       </div>
 
-      <div className="hero__veil" />
+      <div
+        className="hero__veil"
+        aria-hidden="true"
+      />
 
       <div
         className="hero__grain"
@@ -55,6 +71,7 @@ export function Hero({
       />
 
       <div className="shell hero__content">
+
         <div
           className="hero__kicker"
           data-hero-item
@@ -69,12 +86,14 @@ export function Hero({
         </div>
 
         <div className="hero__headline-wrap">
+
           <h1
             id="home-hero-title"
             data-hero-item
           >
             تصميم داخلي وديكور
             <br />
+
             <em>
               في المدينة المنورة
             </em>
@@ -98,6 +117,7 @@ export function Hero({
             والوظيفة والتفاصيل المدروسة،
             من الفكرة وحتى التنفيذ.
           </p>
+
         </div>
 
         <div
@@ -107,9 +127,14 @@ export function Hero({
           <Link
             className="button button--light"
             href="/projects"
+            aria-label="استعرض مشاريع رقي الجمال للتصميم الداخلي"
           >
             شاهد مشاريعنا
-            <ArrowUpLeft size={18} />
+
+            <ArrowUpLeft
+              size={18}
+              aria-hidden="true"
+            />
           </Link>
 
           <a
@@ -117,10 +142,12 @@ export function Hero({
             href={projectWhatsapp()}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="ابدأ مشروع تصميم داخلي مع رقي الجمال عبر واتساب"
           >
             ابدأ مشروعك
           </a>
         </div>
+
       </div>
 
       <div
@@ -142,9 +169,16 @@ export function Hero({
         href="#selected-work"
         aria-label="انتقل إلى مشاريع التصميم الداخلي المختارة"
       >
-        <span>اكتشف مشاريعنا</span>
-        <ArrowDownLeft size={18} />
+        <span>
+          اكتشف مشاريعنا
+        </span>
+
+        <ArrowDownLeft
+          size={18}
+          aria-hidden="true"
+        />
       </a>
+
     </section>
   );
 }
