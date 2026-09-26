@@ -9,9 +9,13 @@ function RuqiSymbol() {
       focusable="false"
     >
       <path d="M12 47V24C12 14.6 19.6 7 29 7s17 7.6 17 17v23" />
+
       <path d="M20 47V27.5C20 22.25 24.25 18 29.5 18S39 22.25 39 27.5V47" />
+
       <path d="M8 47h40" />
+
       <path d="M28 28h8" />
+
       <circle
         cx="16"
         cy="16"
@@ -33,7 +37,7 @@ export function BrandMark({
         inverted ? "is-inverted" : ""
       }`}
       href="/"
-      aria-label="رُقِيّ الجمال - الرئيسية"
+      aria-label="رقي الجمال - الصفحة الرئيسية"
     >
       <RuqiSymbol />
 
