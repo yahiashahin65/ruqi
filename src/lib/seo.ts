@@ -6,9 +6,31 @@ import {
 } from "./constants";
 
 import type {
+  Article,
   Project,
   Service
 } from "./types";
+
+import {
+  articleSeoDescription,
+  articleSeoTitle,
+  cleanSeoText,
+  projectSeoDescription,
+  projectSeoTitle,
+  serviceSeoDescription,
+  serviceSeoTitle,
+  stripArabicDiacritics,
+  truncateSeoDescription
+} from "./auto-seo";
+
+/*
+ * Keep this export so any old file importing
+ * stripArabicDiacritics from "@/lib/seo"
+ * will continue working.
+ */
+export {
+  stripArabicDiacritics
+} from "./auto-seo";
 
 const SITE_ORIGIN =
   SITE_URL.replace(/\/+$/, "");
@@ -16,37 +38,14 @@ const SITE_ORIGIN =
 const DEFAULT_SOCIAL_IMAGE =
   `${SITE_ORIGIN}/og-cover.png`;
 
-type SeoFields = {
-  seoTitle?: string;
-  seoDescription?: string;
-};
-
-/**
- * Removes Arabic diacritics/tashkeel from SEO-facing text.
- *
- * Example:
- * رُقِيّ الجمال -> رقي الجمال
- *
- * UI components can continue using the fully styled/diacritized name.
- */
-export function stripArabicDiacritics(
-  value: string
-) {
-  return value
-    .normalize("NFC")
-    .replace(
-      /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g,
-      ""
-    )
-    .replace(/\u0640/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 const SEO_BRAND_AR =
   stripArabicDiacritics(
     DEFAULT_SETTINGS.brandNameAr
   );
+
+/* =========================================
+   URL HELPERS
+========================================= */
 
 function absoluteUrl(
   value?: string
@@ -65,36 +64,40 @@ function absoluteUrl(
   }
 }
 
+/* =========================================
+   GENERIC PAGE METADATA
+========================================= */
+
 export function pageMetadata(input: {
   title: string;
   description: string;
   path?: string;
   image?: string;
 }): Metadata {
-  const canonical = new URL(
-    input.path || "/",
-    `${SITE_ORIGIN}/`
-  ).toString();
+  const canonical =
+    new URL(
+      input.path || "/",
+      `${SITE_ORIGIN}/`
+    ).toString();
 
   /*
-   * Everything that goes to search/social metadata
-   * is normalized without Arabic tashkeel.
+   * Anything sent to search engines/social metadata
+   * is automatically cleaned from Arabic tashkeel.
    */
   const cleanTitle =
-    stripArabicDiacritics(
+    cleanSeoText(
       input.title
     );
 
   const cleanDescription =
-    stripArabicDiacritics(
-      input.description
+    truncateSeoDescription(
+      input.description,
+      160
     );
 
   /*
-   * Prevent:
-   * "رقي الجمال ... | رُقِيّ الجمال"
-   *
-   * Both forms are normalized before checking.
+   * Avoid:
+   * رقي الجمال ... | رقي الجمال
    */
   const containsBrand =
     cleanTitle.includes(
@@ -107,11 +110,14 @@ export function pageMetadata(input: {
       : `${cleanTitle} | ${SEO_BRAND_AR}`;
 
   const socialImage =
-    absoluteUrl(input.image);
+    absoluteUrl(
+      input.image
+    );
 
   return {
     title: {
-      absolute: finalTitle
+      absolute:
+        finalTitle
     },
 
     description:
@@ -128,17 +134,24 @@ export function pageMetadata(input: {
       googleBot: {
         index: true,
         follow: true,
+
         "max-image-preview":
           "large",
-        "max-snippet": -1,
-        "max-video-preview": -1
+
+        "max-snippet":
+          -1,
+
+        "max-video-preview":
+          -1
       }
     },
 
     openGraph: {
-      type: "website",
+      type:
+        "website",
 
-      locale: "ar_SA",
+      locale:
+        "ar_SA",
 
       url:
         canonical,
@@ -157,8 +170,11 @@ export function pageMetadata(input: {
           url:
             socialImage,
 
-          width: 1200,
-          height: 630,
+          width:
+            1200,
+
+          height:
+            630,
 
           alt:
             finalTitle
@@ -183,25 +199,24 @@ export function pageMetadata(input: {
   };
 }
 
-/* ================================
+/* =========================================
    PROJECT METADATA
-================================ */
+   Automatic - no manual SEO fields
+========================================= */
 
 export function projectMetadata(
   project: Project
 ): Metadata {
-  const seo =
-    project as Project &
-      SeoFields;
-
   return pageMetadata({
     title:
-      seo.seoTitle?.trim() ||
-      project.title,
+      projectSeoTitle(
+        project
+      ),
 
     description:
-      seo.seoDescription?.trim() ||
-      project.excerpt,
+      projectSeoDescription(
+        project
+      ),
 
     path:
       `/projects/${project.slug}`,
@@ -211,43 +226,24 @@ export function projectMetadata(
   });
 }
 
-/* ================================
+/* =========================================
    SERVICE METADATA
-================================ */
+   Automatic - no manual SEO fields
+========================================= */
 
 export function serviceMetadata(
   service: Service
 ): Metadata {
-  const seo =
-    service as Service &
-      SeoFields;
-
-  const defaultTitle =
-    service.title.includes(
-      "المدينة المنورة"
-    )
-      ? service.title
-      : `${service.title} في المدينة المنورة`;
-
-  const defaultDescription =
-    `${service.excerpt} خدمة مقدمة من رقي الجمال في المدينة المنورة للمشاريع السكنية والتجارية.`;
-
   return pageMetadata({
-    /*
-     * Admin SEO fields have priority.
-     *
-     * If empty:
-     * "التصميم الداخلي"
-     * becomes:
-     * "التصميم الداخلي في المدينة المنورة"
-     */
     title:
-      seo.seoTitle?.trim() ||
-      defaultTitle,
+      serviceSeoTitle(
+        service
+      ),
 
     description:
-      seo.seoDescription?.trim() ||
-      defaultDescription,
+      serviceSeoDescription(
+        service
+      ),
 
     path:
       `/services/${service.slug}`,
@@ -257,9 +253,36 @@ export function serviceMetadata(
   });
 }
 
-/* ================================
-   LOCAL BUSINESS
-================================ */
+/* =========================================
+   ARTICLE METADATA
+   Automatic - no manual SEO fields
+========================================= */
+
+export function articleMetadata(
+  article: Article
+): Metadata {
+  return pageMetadata({
+    title:
+      articleSeoTitle(
+        article
+      ),
+
+    description:
+      articleSeoDescription(
+        article
+      ),
+
+    path:
+      `/journal/${article.slug}`,
+
+    image:
+      article.cover.url
+  });
+}
+
+/* =========================================
+   LOCAL BUSINESS SCHEMA
+========================================= */
 
 export function localBusinessJsonLd() {
   const businessId =
@@ -274,7 +297,9 @@ export function localBusinessJsonLd() {
     DEFAULT_SETTINGS.snapchat
   ].filter(
     (url): url is string =>
-      Boolean(url)
+      Boolean(
+        url?.trim()
+      )
   );
 
   return {
@@ -292,19 +317,13 @@ export function localBusinessJsonLd() {
           businessId,
 
         /*
-         * Schema/search version:
-         * بدون تشكيل
+         * No tashkeel in SEO/schema.
+         * The styled name stays only in the visual UI.
          */
         name:
           SEO_BRAND_AR,
 
-        /*
-         * Keep alternative brand spellings here.
-         * The shaped form may still be included
-         * as an alternate identity.
-         */
         alternateName: [
-          DEFAULT_SETTINGS.brandNameAr,
           DEFAULT_SETTINGS.brandName,
           "رقي الجمال للتصميم الداخلي والديكور"
         ].filter(Boolean),
@@ -363,10 +382,8 @@ export function localBusinessJsonLd() {
         name:
           SEO_BRAND_AR,
 
-        alternateName: [
-          DEFAULT_SETTINGS.brandNameAr,
-          DEFAULT_SETTINGS.brandName
-        ].filter(Boolean),
+        alternateName:
+          DEFAULT_SETTINGS.brandName,
 
         inLanguage:
           "ar-SA",
@@ -380,9 +397,9 @@ export function localBusinessJsonLd() {
   };
 }
 
-/* ================================
+/* =========================================
    SERVICE SCHEMA
-================================ */
+========================================= */
 
 export function serviceJsonLd(
   service: Service
@@ -391,7 +408,7 @@ export function serviceJsonLd(
     `${SITE_ORIGIN}/services/${service.slug}`;
 
   const serviceName =
-    stripArabicDiacritics(
+    cleanSeoText(
       service.title
     );
 
@@ -412,8 +429,8 @@ export function serviceJsonLd(
       serviceName,
 
     description:
-      stripArabicDiacritics(
-        service.excerpt
+      serviceSeoDescription(
+        service
       ),
 
     url:
@@ -435,71 +452,29 @@ export function serviceJsonLd(
 
       name:
         "المدينة المنورة"
-    },
-
-    availableChannel: {
-      "@type":
-        "ServiceChannel",
-
-      serviceUrl:
-        serviceUrl
     }
   };
 }
 
-/* ================================
-   BREADCRUMBS
-================================ */
-
-export function breadcrumbsJsonLd(
-  items: Array<{
-    name: string;
-    path: string;
-  }>
-) {
-  return {
-    "@context":
-      "https://schema.org",
-
-    "@type":
-      "BreadcrumbList",
-
-    itemListElement:
-      items.map(
-        (
-          item,
-          index
-        ) => ({
-          "@type":
-            "ListItem",
-
-          position:
-            index + 1,
-
-          name:
-            stripArabicDiacritics(
-              item.name
-            ),
-
-          item:
-            new URL(
-              item.path,
-              `${SITE_ORIGIN}/`
-            ).toString()
-        })
-      )
-  };
-}
-
-/* ================================
+/* =========================================
    PROJECT SCHEMA
-================================ */
+========================================= */
 
 export function projectJsonLd(
   project: Project
 ) {
   const projectUrl =
     `${SITE_ORIGIN}/projects/${project.slug}`;
+
+  const galleryImages =
+    project.gallery
+      ?.slice(0, 5)
+      .map(
+        (item) =>
+          absoluteUrl(
+            item.url
+          )
+      ) || [];
 
   return {
     "@context":
@@ -512,27 +487,23 @@ export function projectJsonLd(
       `${projectUrl}#project`,
 
     name:
-      stripArabicDiacritics(
+      cleanSeoText(
         project.title
       ),
 
     description:
-      stripArabicDiacritics(
-        project.excerpt
+      projectSeoDescription(
+        project
       ),
 
     url:
       projectUrl,
 
     image: [
-      project.cover.url,
-
-      ...project.gallery
-        .slice(0, 5)
-        .map(
-          (item) =>
-            item.url
-        )
+      absoluteUrl(
+        project.cover.url
+      ),
+      ...galleryImages
     ],
 
     creator: {
@@ -553,22 +524,12 @@ export function projectJsonLd(
   };
 }
 
-/* ================================
+/* =========================================
    ARTICLE SCHEMA
-================================ */
+========================================= */
 
 export function articleJsonLd(
-  article: {
-    title: string;
-    excerpt: string;
-    slug: string;
-
-    cover: {
-      url: string;
-    };
-
-    publishedAt: string;
-  }
+  article: Article
 ) {
   const articleUrl =
     `${SITE_ORIGIN}/journal/${article.slug}`;
@@ -584,13 +545,13 @@ export function articleJsonLd(
       `${articleUrl}#article`,
 
     headline:
-      stripArabicDiacritics(
-        article.title
+      articleSeoTitle(
+        article
       ),
 
     description:
-      stripArabicDiacritics(
-        article.excerpt
+      articleSeoDescription(
+        article
       ),
 
     image: [
@@ -622,5 +583,49 @@ export function articleJsonLd(
 
     inLanguage:
       "ar-SA"
+  };
+}
+
+/* =========================================
+   BREADCRUMBS SCHEMA
+========================================= */
+
+export function breadcrumbsJsonLd(
+  items: Array<{
+    name: string;
+    path: string;
+  }>
+) {
+  return {
+    "@context":
+      "https://schema.org",
+
+    "@type":
+      "BreadcrumbList",
+
+    itemListElement:
+      items.map(
+        (
+          item,
+          index
+        ) => ({
+          "@type":
+            "ListItem",
+
+          position:
+            index + 1,
+
+          name:
+            cleanSeoText(
+              item.name
+            ),
+
+          item:
+            new URL(
+              item.path,
+              `${SITE_ORIGIN}/`
+            ).toString()
+        })
+      )
   };
 }
