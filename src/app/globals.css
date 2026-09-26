@@ -1835,3 +1835,11 @@ body.is-menu-locked { overflow: hidden; overscroll-behavior: none; }
   }
 
 }
+.hero__statement {
+  margin: 1.25rem 0 0;
+  max-width: 760px;
+  font-size: clamp(1.4rem, 2.5vw, 2.6rem);
+  line-height: 1.35;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
