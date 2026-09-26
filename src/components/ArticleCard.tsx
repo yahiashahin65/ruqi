@@ -4,6 +4,7 @@ import { ArrowUpLeft } from "lucide-react";
 
 import type { Article } from "@/lib/types";
 import { articleWhatsapp } from "@/lib/whatsapp";
+import { articleImageAlt } from "@/lib/auto-seo";
 
 export function ArticleCard({
   article
@@ -14,7 +15,9 @@ export function ArticleCard({
     `/journal/${article.slug}`;
 
   const publishedDate =
-    new Date(article.publishedAt);
+    new Date(
+      article.publishedAt
+    );
 
   const hasValidDate =
     !Number.isNaN(
@@ -26,14 +29,19 @@ export function ArticleCard({
       ? new Intl.DateTimeFormat(
           "ar-SA",
           {
-            dateStyle: "medium"
+            dateStyle:
+              "medium"
           }
-        ).format(publishedDate)
+        ).format(
+          publishedDate
+        )
       : null;
 
   const imageAlt =
-    article.cover.alt ||
-    `${article.title} - مجلة رقي الجمال`;
+    articleImageAlt(
+      article,
+      article.cover
+    );
 
   return (
     <article
@@ -44,11 +52,15 @@ export function ArticleCard({
       <Link
         className="article-card__image"
         href={articleUrl}
-        aria-label={`اقرا مقال ${article.title}`}
+        aria-label={`اقرأ مقال ${article.title}`}
       >
         <Image
-          src={article.cover.url}
-          alt={imageAlt}
+          src={
+            article.cover.url
+          }
+          alt={
+            imageAlt
+          }
           fill
           sizes="(max-width: 700px) 100vw, 33vw"
         />
@@ -77,7 +89,11 @@ export function ArticleCard({
       <h3
         id={`article-${article.id}-title`}
       >
-        <Link href={articleUrl}>
+        <Link
+          href={
+            articleUrl
+          }
+        >
           {article.title}
         </Link>
       </h3>
@@ -91,11 +107,14 @@ export function ArticleCard({
       <div className="article-card__actions">
 
         <Link
-          href={articleUrl}
+          href={
+            articleUrl
+          }
           className="button button--solid"
-          aria-label={`اقرا مقال ${article.title}`}
+          aria-label={`اقرأ مقال ${article.title}`}
         >
-          اقرا المقال
+          اقرأ المقال
+
           <ArrowUpLeft
             size={18}
             aria-hidden="true"
@@ -103,15 +122,17 @@ export function ArticleCard({
         </Link>
 
         <a
-          href={articleWhatsapp(
-            article.title
-          )}
+          href={
+            articleWhatsapp(
+              article.title
+            )
+          }
           target="_blank"
           rel="noopener noreferrer"
           className="button button--whatsapp"
-          aria-label={`اطلب استشاره متعلقه بمقال ${article.title} عبر واتساب`}
+          aria-label={`اطلب استشارة متعلقة بمقال ${article.title} عبر واتساب`}
         >
-          اطلب استشاره
+          اطلب استشارة
         </a>
 
       </div>
