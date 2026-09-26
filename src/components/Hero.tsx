@@ -1,25 +1,45 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowDownLeft, ArrowUpLeft } from "lucide-react";
+import {
+  ArrowDownLeft,
+  ArrowUpLeft
+} from "lucide-react";
+
 import { projectWhatsapp } from "@/lib/whatsapp";
-type HeroImage = { url: string; alt?: string };
+
+type HeroImage = {
+  url: string;
+  alt?: string;
+};
 
 const fallbackImage: HeroImage = {
   url: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=2400&q=92",
-  alt: "تصميم داخلي دافئ ومعاصر"
+  alt: "تصميم داخلي عصري في المدينة المنورة"
 };
 
-export function Hero({ image }: { image?: HeroImage }) {
-  const heroImage = image?.url ? image : fallbackImage;
+export function Hero({
+  image
+}: {
+  image?: HeroImage;
+}) {
+  const heroImage =
+    image?.url ? image : fallbackImage;
 
   return (
-    <section className="hero" data-hero>
-      <div className="hero__media" data-hero-media>
+    <section
+      className="hero"
+      data-hero
+      aria-labelledby="home-hero-title"
+    >
+      <div
+        className="hero__media"
+        data-hero-media
+      >
         <Image
           src={heroImage.url}
           alt={
             heroImage.alt ||
-            "أحد مشاريع رُقِيّ الجمال للتصميم الداخلي"
+            "مشروع تصميم داخلي وديكور في المدينة المنورة من رقي الجمال"
           }
           fill
           priority
@@ -28,10 +48,17 @@ export function Hero({ image }: { image?: HeroImage }) {
       </div>
 
       <div className="hero__veil" />
-      <div className="hero__grain" aria-hidden="true" />
+
+      <div
+        className="hero__grain"
+        aria-hidden="true"
+      />
 
       <div className="shell hero__content">
-        <div className="hero__kicker" data-hero-item>
+        <div
+          className="hero__kicker"
+          data-hero-item
+        >
           <span>
             تصميم داخلي · تنفيذ · تجديد
           </span>
@@ -42,20 +69,34 @@ export function Hero({ image }: { image?: HeroImage }) {
         </div>
 
         <div className="hero__headline-wrap">
-          <h1 data-hero-item>
-            نرتقي بالمكان
+          <h1
+            id="home-hero-title"
+            data-hero-item
+          >
+            تصميم داخلي وديكور
             <br />
-            <em>حتى يصبح تجربة</em>
-            <br />
-            تعيش معك.
+            <em>
+              في المدينة المنورة
+            </em>
           </h1>
+
+          <p
+            className="hero__statement"
+            data-hero-item
+          >
+            نرتقي بالمكان حتى يصبح
+            تجربة تعيش معك.
+          </p>
 
           <p
             className="hero__lead"
             data-hero-item
           >
-            نصمم وننفذ مساحات سكنية وتجارية تجمع بين
-            الجمال والوظيفة والتفاصيل المدروسة.
+            رُقِيّ الجمال تصمم وتنفذ
+            المساحات السكنية والتجارية
+            بعناية تجمع بين الجمال
+            والوظيفة والتفاصيل المدروسة،
+            من الفكرة وحتى التنفيذ.
           </p>
         </div>
 
@@ -67,18 +108,18 @@ export function Hero({ image }: { image?: HeroImage }) {
             className="button button--light"
             href="/projects"
           >
-            استعرض أعمالنا
+            شاهد مشاريعنا
             <ArrowUpLeft size={18} />
           </Link>
 
           <a
-  className="hero__plain-link"
-  href={projectWhatsapp()}
-  target="_blank"
-  rel="noopener noreferrer"
->
-  ابدأ مشروعك
-</a>
+            className="hero__plain-link"
+            href={projectWhatsapp()}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            ابدأ مشروعك
+          </a>
         </div>
       </div>
 
@@ -91,16 +132,17 @@ export function Hero({ image }: { image?: HeroImage }) {
         </span>
 
         <p>
-          فلل · مجالس · تجديد · ضيافة · مشاريع تجارية
+          فلل · مجالس · تجديد · ضيافة
+          · مشاريع تجارية
         </p>
       </div>
 
       <a
         className="hero__scroll"
         href="#selected-work"
-        aria-label="انتقل للمشاريع المختارة"
+        aria-label="انتقل إلى مشاريع التصميم الداخلي المختارة"
       >
-        <span>اكتشف</span>
+        <span>اكتشف مشاريعنا</span>
         <ArrowDownLeft size={18} />
       </a>
     </section>
