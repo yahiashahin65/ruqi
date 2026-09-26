@@ -1,69 +1,238 @@
-import { NextRequest, NextResponse } from "next/server";
-import { revalidateTag } from "next/cache";
-import { getAdminDb } from "@/lib/firebase/admin";
-import { isAdminRequest } from "@/lib/firebase/session";
-import { projectSchema } from "@/lib/validators";
-import { nextOrder, uniqueSlug } from "@/lib/content-utils";
+import {
+  NextRequest,
+  NextResponse
+} from "next/server";
 
-export async function POST(request: NextRequest) {
-  if (!(await isAdminRequest())) return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+import {
+  revalidateTag
+} from "next/cache";
 
-  const body = await request.json();
+import {
+  getAdminDb
+} from "@/lib/firebase/admin";
 
-const parsed = projectSchema.safeParse(body);
+import {
+  isAdminRequest
+} from "@/lib/firebase/session";
 
-if (!parsed.success) {
-  return NextResponse.json(
-    {
-      error: parsed.error.issues
-        .map((issue) => issue.message)
-        .join(" - ")
-    },
-    {
-      status: 422
+import {
+  projectSchema
+} from "@/lib/validators";
+
+import {
+  nextOrder,
+  uniqueSlug
+} from "@/lib/content-utils";
+
+export async function POST(
+  request: NextRequest
+) {
+  if (
+    !(await isAdminRequest())
+  ) {
+    return NextResponse.json(
+      {
+        error: "غير مصرح"
+      },
+      {
+        status: 401
+      }
+    );
+  }
+
+  try {
+    const body =
+      await request.json();
+
+    const parsed =
+      projectSchema.safeParse(
+        body
+      );
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          error:
+            parsed.error.issues
+              .map(
+                (issue) =>
+                  issue.message
+              )
+              .join(" - ")
+        },
+        {
+          status: 422
+        }
+      );
     }
-  );
-}
-  const db = getAdminDb();
-  if (!db) return NextResponse.json({ error: "تعذر الحفظ حاليا" }, { status: 503 });
 
-  const ref = db.collection("projects").doc();
-  const slug = await uniqueSlug(db, "projects", parsed.data.title);
-  const order =
-  parsed.data.order > 0
-    ? parsed.data.order
-    : await nextOrder(db, "projects");
-  const now = new Date().toISOString();
+    const db =
+      getAdminDb();
 
-  const data = {
-    title: parsed.data.title,
-    slug,
-    subtitle: "",
-    type: parsed.data.type,
-    style: parsed.data.style || "",
-    city: "المدينة المنورة",
-    district: "",
-    year: new Date().getFullYear(),
-    ...(parsed.data.area ? { area: parsed.data.area } : {}),
-    duration: parsed.data.duration || "",
-    scope: "",
-    excerpt: parsed.data.excerpt,
-    story: parsed.data.story,
-    cover: parsed.data.cover,
-    gallery: parsed.data.gallery,
-    ...(parsed.data.before ? { before: parsed.data.before } : {}),
-    ...(parsed.data.after ? { after: parsed.data.after } : {}),
-    services: [],
-    featured: parsed.data.featured,
-    status: parsed.data.status,
-    order,
-    seoTitle: parsed.data.title,
-    seoDescription: parsed.data.excerpt.slice(0, 180),
-    createdAt: now,
-    updatedAt: now
-  };
+    if (!db) {
+      return NextResponse.json(
+        {
+          error:
+            "تعذر الحفظ حاليا"
+        },
+        {
+          status: 503
+        }
+      );
+    }
 
-  await ref.set(data);
-  revalidateTag("projects", "max");
-  return NextResponse.json({ id: ref.id }, { status: 201 });
+    const ref =
+      db
+        .collection(
+          "projects"
+        )
+        .doc();
+
+    const slug =
+      await uniqueSlug(
+        db,
+        "projects",
+        parsed.data.title
+      );
+
+    const order =
+      parsed.data.order > 0
+        ? parsed.data.order
+        : await nextOrder(
+            db,
+            "projects"
+          );
+
+    const now =
+      new Date()
+        .toISOString();
+
+    const data = {
+      title:
+        parsed.data.title,
+
+      slug,
+
+      subtitle:
+        "",
+
+      type:
+        parsed.data.type,
+
+      style:
+        parsed.data.style ||
+        "",
+
+      /*
+       * المشروع حاليا يستهدف
+       * المدينة المنورة افتراضيا.
+       */
+      city:
+        "المدينة المنورة",
+
+      district:
+        "",
+
+      year:
+        new Date()
+          .getFullYear(),
+
+      ...(parsed.data.area
+        ? {
+            area:
+              parsed.data.area
+          }
+        : {}),
+
+      duration:
+        parsed.data.duration ||
+        "",
+
+      scope:
+        "",
+
+      excerpt:
+        parsed.data.excerpt,
+
+      story:
+        parsed.data.story,
+
+      cover:
+        parsed.data.cover,
+
+      gallery:
+        parsed.data.gallery,
+
+      ...(parsed.data.before
+        ? {
+            before:
+              parsed.data.before
+          }
+        : {}),
+
+      ...(parsed.data.after
+        ? {
+            after:
+              parsed.data.after
+          }
+        : {}),
+
+      /*
+       * جاهزة لو هنربط المشاريع
+       * بالخدمات لاحقا.
+       */
+      services:
+        [],
+
+      featured:
+        parsed.data.featured,
+
+      status:
+        parsed.data.status,
+
+      order,
+
+      /*
+       * لا يتم تخزين SEO fields.
+       *
+       * SEO يتم توليده تلقائيا
+       * من:
+       * title + excerpt + type
+       */
+      createdAt:
+        now,
+
+      updatedAt:
+        now
+    };
+
+    await ref.set(
+      data
+    );
+
+    revalidateTag(
+      "projects",
+      "max"
+    );
+
+    return NextResponse.json(
+      {
+        id:
+          ref.id
+      },
+      {
+        status: 201
+      }
+    );
+  } catch {
+    return NextResponse.json(
+      {
+        error:
+          "تعذر حفظ المشروع"
+      },
+      {
+        status: 500
+      }
+    );
+  }
 }
