@@ -5,51 +5,47 @@ import { notFound } from "next/navigation";
 import { ArrowUpLeft } from "lucide-react";
 
 import { getArticleBySlug } from "@/lib/firebase/data";
+
 import {
   articleJsonLd,
-  breadcrumbsJsonLd,
-  pageMetadata
+  articleMetadata,
+  breadcrumbsJsonLd
 } from "@/lib/seo";
 
-type ArticleSeoFields = {
-  seoTitle?: string;
-  seoDescription?: string;
-};
+import {
+  articleImageAlt
+} from "@/lib/auto-seo";
+
+/* =========================================
+   METADATA
+   Automatic SEO from article data
+========================================= */
 
 export async function generateMetadata({
   params
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{
+    slug: string;
+  }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug } =
+    await params;
 
   const article =
-    await getArticleBySlug(slug);
+    await getArticleBySlug(
+      slug
+    );
 
-  if (!article) {
-    return {};
-  }
-
-  const seo =
-    article as typeof article &
-      ArticleSeoFields;
-
-  return pageMetadata({
-    title:
-      seo.seoTitle?.trim() ||
-      article.title,
-
-    description:
-      seo.seoDescription?.trim() ||
-      article.excerpt,
-
-    path:
-      `/journal/${article.slug}`,
-
-    image:
-      article.cover.url
-  });
+  return article
+    ? articleMetadata(
+        article
+      )
+    : {};
 }
+
+/* =========================================
+   ARTICLE CONTENT RENDERER
+========================================= */
 
 function renderArticleContent(
   content: string
@@ -57,19 +53,23 @@ function renderArticleContent(
   const blocks =
     content
       .split(/\n\s*\n/)
-      .map((block) => block.trim())
+      .map(
+        (block) =>
+          block.trim()
+      )
       .filter(Boolean);
 
   return blocks.map(
     (block, index) => {
-
       /*
        * H2
-       * Example:
+       *
        * ## كيف تختار الخامات؟
        */
       if (
-        block.startsWith("## ")
+        block.startsWith(
+          "## "
+        )
       ) {
         return (
           <h2 key={index}>
@@ -83,11 +83,13 @@ function renderArticleContent(
 
       /*
        * H3
-       * Example:
+       *
        * ### الإضاءة الطبيعية
        */
       if (
-        block.startsWith("### ")
+        block.startsWith(
+          "### "
+        )
       ) {
         return (
           <h3 key={index}>
@@ -100,31 +102,45 @@ function renderArticleContent(
       }
 
       /*
-       * Unordered list
+       * Unordered lists
        *
        * - العنصر الأول
        * - العنصر الثاني
        */
       const lines =
-        block.split("\n");
+        block
+          .split("\n")
+          .map(
+            (line) =>
+              line.trim()
+          )
+          .filter(Boolean);
 
       if (
-        lines.length > 1 &&
-        lines.every((line) =>
-          line.trim().startsWith("- ")
+        lines.length > 0 &&
+        lines.every(
+          (line) =>
+            line.startsWith(
+              "- "
+            )
         )
       ) {
         return (
           <ul key={index}>
             {lines.map(
-              (line, itemIndex) => (
-                <li key={itemIndex}>
-                  {line
-                    .trim()
-                    .replace(
-                      /^-\s+/,
-                      ""
-                    )}
+              (
+                line,
+                itemIndex
+              ) => (
+                <li
+                  key={
+                    itemIndex
+                  }
+                >
+                  {line.replace(
+                    /^-\s+/,
+                    ""
+                  )}
                 </li>
               )
             )}
@@ -141,36 +157,53 @@ function renderArticleContent(
   );
 }
 
+/* =========================================
+   ARTICLE PAGE
+========================================= */
+
 export default async function ArticlePage({
   params
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{
+    slug: string;
+  }>;
 }) {
-  const { slug } = await params;
+  const { slug } =
+    await params;
 
   const article =
-    await getArticleBySlug(slug);
+    await getArticleBySlug(
+      slug
+    );
 
   if (!article) {
     notFound();
   }
 
   const schema =
-    articleJsonLd(article);
+    articleJsonLd(
+      article
+    );
 
   const crumbs =
     breadcrumbsJsonLd([
       {
-        name: "الرئيسية",
-        path: "/"
+        name:
+          "الرئيسية",
+        path:
+          "/"
       },
       {
-        name: "المجلة",
-        path: "/journal"
+        name:
+          "المجلة",
+        path:
+          "/journal"
       },
       {
-        name: article.title,
-        path: `/journal/${article.slug}`
+        name:
+          article.title,
+        path:
+          `/journal/${article.slug}`
       }
     ]);
 
@@ -179,14 +212,18 @@ export default async function ArticlePage({
       article.publishedAt
     );
 
-  const formattedDate =
+  const hasValidDate =
     !Number.isNaN(
       publishDate.getTime()
-    )
+    );
+
+  const formattedDate =
+    hasValidDate
       ? new Intl.DateTimeFormat(
           "ar-SA",
           {
-            dateStyle: "long"
+            dateStyle:
+              "long"
           }
         ).format(
           publishDate
@@ -196,7 +233,10 @@ export default async function ArticlePage({
   return (
     <main className="page-main">
 
-      {/* Article Hero */}
+      {/* =========================
+          HERO
+      ========================== */}
+
       <header
         className="page-hero"
         aria-labelledby="article-title"
@@ -221,37 +261,47 @@ export default async function ArticlePage({
               {article.title}
             </h1>
 
-            <p className="page-hero__lead">
-              {article.excerpt}
-            </p>
+            {article.excerpt && (
+              <p className="page-hero__lead">
+                {article.excerpt}
+              </p>
+            )}
           </div>
 
         </div>
       </header>
 
-      {/* Cover */}
+      {/* =========================
+          COVER IMAGE
+      ========================== */}
+
       <figure
         className="shell home-case__media"
         style={{
-          aspectRatio: "16/8",
-          marginTop: 60
+          aspectRatio:
+            "16/8",
+          marginTop:
+            60
         }}
       >
         <Image
           src={
             article.cover.url
           }
-          alt={
-            article.cover.alt ||
-            `${article.title} - رقي الجمال`
-          }
+          alt={articleImageAlt(
+            article,
+            article.cover
+          )}
           fill
           priority
           sizes="100vw"
         />
       </figure>
 
-      {/* Article */}
+      {/* =========================
+          ARTICLE CONTENT
+      ========================== */}
+
       <article
         className="content-page"
         aria-labelledby="article-title"
@@ -259,6 +309,7 @@ export default async function ArticlePage({
         <div className="shell content-grid">
 
           <aside>
+
             {formattedDate && (
               <>
                 <p className="eyebrow">
@@ -278,12 +329,14 @@ export default async function ArticlePage({
             {article.category && (
               <p
                 style={{
-                  marginTop: 24
+                  marginTop:
+                    24
                 }}
               >
                 {article.category}
               </p>
             )}
+
           </aside>
 
           <div className="prose">
@@ -291,6 +344,10 @@ export default async function ArticlePage({
             {renderArticleContent(
               article.content
             )}
+
+            {/* =========================
+                INTERNAL LINKING / CTA
+            ========================== */}
 
             <section
               aria-labelledby="article-services-title"
@@ -316,8 +373,10 @@ export default async function ArticlePage({
                 href="/services"
               >
                 استعرض خدماتنا
+
                 <ArrowUpLeft
                   size={18}
+                  aria-hidden="true"
                 />
               </Link>
             </section>
@@ -325,6 +384,10 @@ export default async function ArticlePage({
           </div>
         </div>
       </article>
+
+      {/* =========================
+          ARTICLE SCHEMA
+      ========================== */}
 
       <script
         type="application/ld+json"
@@ -335,6 +398,10 @@ export default async function ArticlePage({
             )
         }}
       />
+
+      {/* =========================
+          BREADCRUMBS SCHEMA
+      ========================== */}
 
       <script
         type="application/ld+json"
