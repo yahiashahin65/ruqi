@@ -17,11 +17,11 @@ export default async function HomePage() {
 
   const featured = projects
     .filter((project) => project.featured)
-    .slice(0, 10);
+    .slice(0, 23);
 
   const selectedProjects = featured.length
     ? featured
-    : projects.slice(0, 10);
+    : projects.slice(0, 23);
 
   const caseStudy = projects[0];
 
