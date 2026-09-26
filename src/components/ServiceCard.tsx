@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import type { Service } from "@/lib/types";
 import { serviceWhatsapp } from "@/lib/whatsapp";
+import { serviceImageAlt } from "@/lib/auto-seo";
 
 export function ServiceCard({
   service,
@@ -11,11 +12,14 @@ export function ServiceCard({
   service: Service;
   index?: number;
 }) {
-  const serviceUrl = `/services/${service.slug}`;
+  const serviceUrl =
+    `/services/${service.slug}`;
 
   const imageAlt =
-    service.image.alt ||
-    `${service.title} في المدينة المنورة - رقي الجمال`;
+    serviceImageAlt(
+      service,
+      service.image
+    );
 
   return (
     <article
@@ -46,8 +50,12 @@ export function ServiceCard({
 
       <div className="project-card__meta">
         <div>
-          <h3 id={`service-${service.id}-title`}>
-            <Link href={serviceUrl}>
+          <h3
+            id={`service-${service.id}-title`}
+          >
+            <Link
+              href={serviceUrl}
+            >
               {service.title}
             </Link>
           </h3>
@@ -66,7 +74,9 @@ export function ServiceCard({
             </Link>
 
             <a
-              href={serviceWhatsapp(service.title)}
+              href={serviceWhatsapp(
+                service.title
+              )}
               target="_blank"
               rel="noopener noreferrer"
               className="button button--whatsapp"
