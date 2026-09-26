@@ -5,7 +5,10 @@ import { notFound } from "next/navigation";
 import { ArrowUpLeft } from "lucide-react";
 
 import { BeforeAfter } from "@/components/BeforeAfter";
-import { getProjectBySlug } from "@/lib/firebase/data";
+
+import {
+  getProjectBySlug
+} from "@/lib/firebase/data";
 
 import {
   breadcrumbsJsonLd,
@@ -13,82 +16,125 @@ import {
   projectMetadata
 } from "@/lib/seo";
 
-import { PROJECT_TYPES } from "@/lib/constants";
+import {
+  projectImageAlt
+} from "@/lib/auto-seo";
+
+import {
+  PROJECT_TYPES
+} from "@/lib/constants";
+
+/* =========================================
+   METADATA
+========================================= */
 
 export async function generateMetadata({
   params
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{
+    slug: string;
+  }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug } =
+    await params;
 
   const project =
-    await getProjectBySlug(slug);
+    await getProjectBySlug(
+      slug
+    );
 
   return project
-    ? projectMetadata(project)
+    ? projectMetadata(
+        project
+      )
     : {};
 }
+
+/* =========================================
+   PROJECT PAGE
+========================================= */
 
 export default async function ProjectPage({
   params
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{
+    slug: string;
+  }>;
 }) {
-  const { slug } = await params;
+  const { slug } =
+    await params;
 
   const project =
-    await getProjectBySlug(slug);
+    await getProjectBySlug(
+      slug
+    );
 
   if (!project) {
     notFound();
   }
 
   const projectType =
-    PROJECT_TYPES[project.type] ||
+    PROJECT_TYPES[
+      project.type
+    ] ||
     "تصميم داخلي";
 
   const storyParagraphs =
     project.story
       ?.split(/\n\s*\n/)
-      .map((paragraph) =>
-        paragraph.trim()
+      .map(
+        (paragraph) =>
+          paragraph.trim()
       )
-      .filter(Boolean) || [];
+      .filter(Boolean) ||
+    [];
 
   const projectSchema =
-    projectJsonLd(project);
+    projectJsonLd(
+      project
+    );
 
   const crumbs =
     breadcrumbsJsonLd([
       {
-        name: "الرئيسية",
-        path: "/"
+        name:
+          "الرئيسية",
+        path:
+          "/"
       },
       {
-        name: "المشاريع",
-        path: "/projects"
+        name:
+          "المشاريع",
+        path:
+          "/projects"
       },
       {
-        name: project.title,
-        path: `/projects/${project.slug}`
+        name:
+          project.title,
+        path:
+          `/projects/${project.slug}`
       }
     ]);
 
   return (
     <main className="project-detail__hero">
 
-      {/* Main Project Image */}
+      {/* =========================
+          MAIN PROJECT IMAGE
+      ========================== */}
+
       <section
         className="project-detail__hero-image"
         aria-label={`صورة مشروع ${project.title}`}
       >
         <Image
-          src={project.cover.url}
-          alt={
-            project.cover.alt ||
-            `مشروع ${project.title} - ${projectType} في المدينة المنورة من رقي الجمال`
+          src={
+            project.cover.url
           }
+          alt={projectImageAlt(
+            project,
+            project.cover
+          )}
           fill
           priority
           sizes="100vw"
@@ -96,7 +142,10 @@ export default async function ProjectPage({
         />
       </section>
 
-      {/* Project Introduction */}
+      {/* =========================
+          PROJECT INTRODUCTION
+      ========================== */}
+
       <section
         className="shell project-detail__intro"
         aria-labelledby="project-title"
@@ -106,6 +155,7 @@ export default async function ProjectPage({
         </p>
 
         <div>
+
           <h1 id="project-title">
             {project.title}
           </h1>
@@ -115,6 +165,7 @@ export default async function ProjectPage({
               {project.excerpt}
             </p>
           )}
+
         </div>
 
         <div className="project-detail__facts">
@@ -158,7 +209,10 @@ export default async function ProjectPage({
         </div>
       </section>
 
-      {/* Project Story */}
+      {/* =========================
+          PROJECT STORY
+      ========================== */}
+
       <section
         className="project-story shell"
         aria-labelledby="project-story-title"
@@ -168,13 +222,17 @@ export default async function ProjectPage({
         </p>
 
         <div className="prose">
+
           <h2 id="project-story-title">
             تفاصيل مشروع {project.title}
           </h2>
 
           {storyParagraphs.length ? (
             storyParagraphs.map(
-              (paragraph, index) => (
+              (
+                paragraph,
+                index
+              ) => (
                 <p key={index}>
                   {paragraph}
                 </p>
@@ -185,28 +243,39 @@ export default async function ProjectPage({
               {project.excerpt}
             </p>
           )}
+
         </div>
       </section>
 
-      {/* Project Gallery */}
-      {project.gallery.length > 0 && (
+      {/* =========================
+          PROJECT GALLERY
+      ========================== */}
+
+      {project.gallery.length >
+        0 && (
         <section
           className="shell gallery-grid"
           aria-label={`صور مشروع ${project.title}`}
         >
           {project.gallery.map(
-            (image, index) => (
+            (
+              image,
+              index
+            ) => (
               <div
                 className="gallery-grid__item"
                 key={`${image.url}-${index}`}
                 data-reveal
               >
                 <Image
-                  src={image.url}
-                  alt={
-                    image.alt ||
-                    `${project.title} - ${projectType} في المدينة المنورة - صورة ${index + 1}`
+                  src={
+                    image.url
                   }
+                  alt={projectImageAlt(
+                    project,
+                    image,
+                    index
+                  )}
                   fill
                   sizes="(max-width: 900px) 100vw, 70vw"
                   className="project-gallery-image"
@@ -217,7 +286,10 @@ export default async function ProjectPage({
         </section>
       )}
 
-      {/* Before / After */}
+      {/* =========================
+          BEFORE / AFTER
+      ========================== */}
+
       {project.before &&
         project.after && (
           <section
@@ -253,7 +325,10 @@ export default async function ProjectPage({
           </section>
         )}
 
-      {/* CTA */}
+      {/* =========================
+          CTA
+      ========================== */}
+
       <section
         className="section"
         aria-labelledby="similar-project-title"
@@ -271,6 +346,7 @@ export default async function ProjectPage({
           </h2>
 
           <div>
+
             <p className="section-heading__text">
               إذا كنت تخطط لمشروع تصميم داخلي
               أو تجديد أو تنفيذ في المدينة المنورة،
@@ -285,12 +361,21 @@ export default async function ProjectPage({
               aria-label={`ابدأ مشروع تصميم داخلي مشابه لمشروع ${project.title}`}
             >
               ابدأ مشروعك مع رُقِيّ الجمال
-              <ArrowUpLeft size={18} />
+
+              <ArrowUpLeft
+                size={18}
+                aria-hidden="true"
+              />
             </Link>
+
           </div>
 
         </div>
       </section>
+
+      {/* =========================
+          PROJECT SCHEMA
+      ========================== */}
 
       <script
         type="application/ld+json"
@@ -301,6 +386,10 @@ export default async function ProjectPage({
             )
         }}
       />
+
+      {/* =========================
+          BREADCRUMBS
+      ========================== */}
 
       <script
         type="application/ld+json"
