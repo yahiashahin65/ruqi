@@ -1,7 +1,22 @@
-import type { DocumentData } from "firebase-admin/firestore";
-import { unstable_cache } from "next/cache";
-import { getAdminDb, isFirebaseAdminConfigured } from "./admin";
-import { demoArticles, demoProjects, demoServices } from "../demo-data";
+import type {
+  DocumentData
+} from "firebase-admin/firestore";
+
+import {
+  unstable_cache
+} from "next/cache";
+
+import {
+  getAdminDb,
+  isFirebaseAdminConfigured
+} from "./admin";
+
+import {
+  demoArticles,
+  demoProjects,
+  demoServices
+} from "../demo-data";
+
 import type {
   Article,
   Lead,
@@ -9,10 +24,35 @@ import type {
   Service,
   SiteSettings
 } from "../types";
-import { DEFAULT_SETTINGS } from "../constants";
 
+import {
+  DEFAULT_SETTINGS
+} from "../constants";
+
+/* =========================================
+   DEMO CONTENT
+========================================= */
+
+/*
+ * Important:
+ *
+ * Demo content is now OFF by default.
+ *
+ * To enable it intentionally:
+ *
+ * NEXT_PUBLIC_DEMO_CONTENT=true
+ *
+ * This prevents demo projects/services/articles
+ * from accidentally appearing on production.
+ */
 const useDemoContent =
-  process.env.NEXT_PUBLIC_DEMO_CONTENT !== "false";
+  process.env
+    .NEXT_PUBLIC_DEMO_CONTENT ===
+  "true";
+
+/* =========================================
+   BASIC NORMALIZATION
+========================================= */
 
 function normalize<T>(
   id: string,
@@ -26,89 +66,333 @@ function normalize<T>(
   ) as T;
 }
 
-function normalizeSlug(slug: string) {
-  let value = slug;
+/*
+ * Old Firestore records may still contain:
+ *
+ * seoTitle
+ * seoDescription
+ *
+ * They are no longer part of the application
+ * and must not be returned to the rest
+ * of the public/admin code.
+ *
+ * They remain in Firestore until the record
+ * is edited, where PATCH routes delete them.
+ */
+function removeLegacySeoFields(
+  data: DocumentData
+): DocumentData {
+  const clean = {
+    ...data
+  };
+
+  delete clean.seoTitle;
+  delete clean.seoDescription;
+
+  return clean;
+}
+
+/* =========================================
+   CONTENT NORMALIZERS
+========================================= */
+
+function normalizeProject(
+  id: string,
+  data: DocumentData
+): Project {
+  const project =
+    normalize<Project>(
+      id,
+      removeLegacySeoFields(
+        data
+      )
+    );
+
+  return {
+    ...project,
+
+    city:
+      project.city ||
+      "المدينة المنورة",
+
+    gallery:
+      Array.isArray(
+        project.gallery
+      )
+        ? project.gallery
+        : [],
+
+    services:
+      Array.isArray(
+        project.services
+      )
+        ? project.services
+        : [],
+
+    featured:
+      Boolean(
+        project.featured
+      ),
+
+    order:
+      Number.isFinite(
+        Number(
+          project.order
+        )
+      )
+        ? Number(
+            project.order
+          )
+        : 1
+  };
+}
+
+function normalizeService(
+  id: string,
+  data: DocumentData
+): Service {
+  const service =
+    normalize<Service>(
+      id,
+      removeLegacySeoFields(
+        data
+      )
+    );
+
+  return {
+    ...service,
+
+    eyebrow:
+      service.eyebrow ||
+      "خدماتنا",
+
+    gallery:
+      Array.isArray(
+        service.gallery
+      )
+        ? service.gallery
+        : [],
+
+    deliverables:
+      Array.isArray(
+        service.deliverables
+      )
+        ? service.deliverables
+        : [],
+
+    order:
+      Number.isFinite(
+        Number(
+          service.order
+        )
+      )
+        ? Number(
+            service.order
+          )
+        : 1
+  };
+}
+
+function normalizeArticle(
+  id: string,
+  data: DocumentData
+): Article {
+  return normalize<Article>(
+    id,
+    removeLegacySeoFields(
+      data
+    )
+  );
+}
+
+/* =========================================
+   SLUG
+========================================= */
+
+function normalizeSlug(
+  slug: string
+) {
+  let value =
+    slug;
 
   try {
-    value = decodeURIComponent(slug);
+    value =
+      decodeURIComponent(
+        slug
+      );
   } catch {
-    value = slug;
+    value =
+      slug;
   }
 
   return value
     .normalize("NFKC")
     .trim()
-    .replace(/^\/+|\/+$/g, "");
+    .replace(
+      /^\/+|\/+$/g,
+      ""
+    );
 }
 
-async function firestoreList<T>(
+/* =========================================
+   DATE HELPERS
+========================================= */
+
+function dateTimestamp(
+  value?: string
+) {
+  if (!value) {
+    return 0;
+  }
+
+  const timestamp =
+    new Date(
+      value
+    ).getTime();
+
+  return Number.isNaN(
+    timestamp
+  )
+    ? 0
+    : timestamp;
+}
+
+/* =========================================
+   GENERIC FIRESTORE LIST
+========================================= */
+
+async function firestoreList(
   collectionName: string
-): Promise<T[]> {
-  const db = getAdminDb();
+): Promise<
+  Array<{
+    id: string;
+    data: DocumentData;
+  }>
+> {
+  const db =
+    getAdminDb();
 
-  if (!db) return [];
+  if (!db) {
+    return [];
+  }
 
-  const snap = await db
-    .collection(collectionName)
-    .get();
+  const snap =
+    await db
+      .collection(
+        collectionName
+      )
+      .get();
 
-  return snap.docs.map((doc) =>
-    normalize<T>(
-      doc.id,
-      doc.data()
-    )
+  return snap.docs.map(
+    (doc) => ({
+      id:
+        doc.id,
+
+      data:
+        doc.data()
+    })
   );
 }
 
+/* =========================================
+   PUBLIC PROJECTS
+========================================= */
+
 export const getProjects =
   unstable_cache(
-    async (): Promise<Project[]> => {
-      if (!isFirebaseAdminConfigured()) {
+    async (): Promise<
+      Project[]
+    > => {
+      if (
+        !isFirebaseAdminConfigured()
+      ) {
         return useDemoContent
           ? demoProjects
           : [];
       }
 
       try {
-        const items =
-          await firestoreList<Project>(
+        const docs =
+          await firestoreList(
             "projects"
           );
 
-        const published =
-          items.filter(
-            (item) =>
-              item.status === "published"
+        const items =
+          docs.map(
+            ({
+              id,
+              data
+            }) =>
+              normalizeProject(
+                id,
+                data
+              )
           );
 
-        return published.length
-          ? published.sort(
-              (a, b) =>
-                a.order - b.order
+        const published =
+          items
+            .filter(
+              (item) =>
+                item.status ===
+                "published"
             )
-          : useDemoContent
-            ? demoProjects
-            : [];
-      } catch {
+            .sort(
+              (
+                a,
+                b
+              ) =>
+                a.order -
+                b.order
+            );
+
+        if (
+          published.length
+        ) {
+          return published;
+        }
+
+        return useDemoContent
+          ? demoProjects
+          : [];
+      } catch (
+        error
+      ) {
+        console.error(
+          "[getProjects]",
+          error
+        );
+
         return useDemoContent
           ? demoProjects
           : [];
       }
     },
-    ["public-projects"],
+    [
+      "public-projects"
+    ],
     {
-      revalidate: 120,
-      tags: ["projects"]
+      revalidate:
+        120,
+
+      tags: [
+        "projects"
+      ]
     }
   );
 
+/* =========================================
+   PUBLIC PROJECT BY SLUG
+========================================= */
 
 export async function getProjectBySlug(
   slug: string
-): Promise<Project | null> {
-
+): Promise<
+  Project | null
+> {
   const normalizedSlug =
-    normalizeSlug(slug);
+    normalizeSlug(
+      slug
+    );
 
   const projects =
     await getProjects();
@@ -116,73 +400,120 @@ export async function getProjectBySlug(
   return (
     projects.find(
       (project) =>
-        normalizeSlug(project.slug) === normalizedSlug
+        normalizeSlug(
+          project.slug
+        ) ===
+        normalizedSlug
     ) || null
   );
 }
 
+/* =========================================
+   PUBLIC SERVICES
+========================================= */
 
 export const getServices =
   unstable_cache(
-    async (): Promise<Service[]> => {
-      if (!isFirebaseAdminConfigured()) {
+    async (): Promise<
+      Service[]
+    > => {
+      if (
+        !isFirebaseAdminConfigured()
+      ) {
         return useDemoContent
           ? demoServices
           : [];
       }
 
       try {
-        const items =
-          await firestoreList<Service>(
+        const docs =
+          await firestoreList(
             "services"
           );
 
-        const normalizedItems =
-          items.map((item) => ({
-            ...item,
-            gallery: item.gallery || []
-          }));
-
-        const published =
-          normalizedItems.filter(
-            (item) =>
-              item.status === "published"
+        const items =
+          docs.map(
+            ({
+              id,
+              data
+            }) =>
+              normalizeService(
+                id,
+                data
+              )
           );
 
-        return published.length
-          ? published.sort(
-              (a, b) =>
-                a.order - b.order
+        const published =
+          items
+            .filter(
+              (item) =>
+                item.status ===
+                "published"
             )
-          : useDemoContent
-            ? demoServices
-            : [];
+            .sort(
+              (
+                a,
+                b
+              ) =>
+                a.order -
+                b.order
+            );
 
-      } catch {
+        if (
+          published.length
+        ) {
+          return published;
+        }
+
+        return useDemoContent
+          ? demoServices
+          : [];
+      } catch (
+        error
+      ) {
+        console.error(
+          "[getServices]",
+          error
+        );
+
         return useDemoContent
           ? demoServices
           : [];
       }
     },
-    ["public-services"],
+    [
+      "public-services"
+    ],
     {
-      revalidate: 300,
-      tags: ["services"]
+      revalidate:
+        300,
+
+      tags: [
+        "services"
+      ]
     }
   );
 
+/* =========================================
+   PUBLIC SERVICE BY SLUG
+========================================= */
 
 export async function getServiceBySlug(
   slug: string
-): Promise<Service | null> {
-
+): Promise<
+  Service | null
+> {
   const normalizedSlug =
-    normalizeSlug(slug);
+    normalizeSlug(
+      slug
+    );
 
-
-  if (!isFirebaseAdminConfigured()) {
-
-    if (!useDemoContent) {
+  if (
+    !isFirebaseAdminConfigured()
+  ) {
+    if (
+      !useDemoContent
+    ) {
       return null;
     }
 
@@ -191,68 +522,70 @@ export async function getServiceBySlug(
         (service) =>
           normalizeSlug(
             service.slug
-          ) === normalizedSlug
+          ) ===
+          normalizedSlug
       ) || null
     );
   }
 
-
   try {
+    const db =
+      getAdminDb();
 
-    const db = getAdminDb();
+    if (!db) {
+      return null;
+    }
 
-    if (!db) return null;
+    const snapshot =
+      await db
+        .collection(
+          "services"
+        )
+        .where(
+          "slug",
+          "==",
+          normalizedSlug
+        )
+        .limit(1)
+        .get();
 
-
-    const snapshot = await db
-      .collection("services")
-      .where(
-        "slug",
-        "==",
-        normalizedSlug
-      )
-      .limit(1)
-      .get();
-
-
-    if (!snapshot.empty) {
-
+    if (
+      !snapshot.empty
+    ) {
       const doc =
         snapshot.docs[0];
 
-
-      const service = {
-        ...normalize<Service>(
+      const service =
+        normalizeService(
           doc.id,
           doc.data()
-        ),
-        gallery:
-          doc.data().gallery || []
-      };
+        );
 
-
-      return service.status === "published"
+      return service.status ===
+        "published"
         ? service
         : null;
     }
 
-
+    /*
+     * Compatibility fallback for
+     * existing encoded/normalized slugs.
+     */
     const services =
       await getServices();
-
 
     return (
       services.find(
         (service) =>
           normalizeSlug(
             service.slug
-          ) === normalizedSlug
+          ) ===
+          normalizedSlug
       ) || null
     );
-
-
-  } catch (error) {
-
+  } catch (
+    error
+  ) {
     console.error(
       "[getServiceBySlug]",
       error
@@ -261,66 +594,117 @@ export async function getServiceBySlug(
     return null;
   }
 }
+
+/* =========================================
+   PUBLIC ARTICLES
+========================================= */
+
 export const getArticles =
   unstable_cache(
-    async (): Promise<Article[]> => {
-      if (!isFirebaseAdminConfigured()) {
+    async (): Promise<
+      Article[]
+    > => {
+      if (
+        !isFirebaseAdminConfigured()
+      ) {
         return useDemoContent
           ? demoArticles
           : [];
       }
 
       try {
-        const items =
-          await firestoreList<Article>(
+        const docs =
+          await firestoreList(
             "articles"
           );
 
-        const published =
-          items.filter(
-            (item) =>
-              item.status ===
-              "published"
+        const items =
+          docs.map(
+            ({
+              id,
+              data
+            }) =>
+              normalizeArticle(
+                id,
+                data
+              )
           );
 
-        return published.length
-          ? published.sort(
-              (a, b) =>
-                +new Date(
+        const published =
+          items
+            .filter(
+              (item) =>
+                item.status ===
+                "published"
+            )
+            .sort(
+              (
+                a,
+                b
+              ) =>
+                dateTimestamp(
                   b.publishedAt
                 ) -
-                +new Date(
+                dateTimestamp(
                   a.publishedAt
                 )
-            )
-          : useDemoContent
-            ? demoArticles
-            : [];
-      } catch {
+            );
+
+        if (
+          published.length
+        ) {
+          return published;
+        }
+
+        return useDemoContent
+          ? demoArticles
+          : [];
+      } catch (
+        error
+      ) {
+        console.error(
+          "[getArticles]",
+          error
+        );
+
         return useDemoContent
           ? demoArticles
           : [];
       }
     },
-    ["public-articles"],
+    [
+      "public-articles"
+    ],
     {
-      revalidate: 300,
-      tags: ["articles"]
+      revalidate:
+        300,
+
+      tags: [
+        "articles"
+      ]
     }
   );
 
+/* =========================================
+   PUBLIC ARTICLE BY SLUG
+========================================= */
 
 export async function getArticleBySlug(
   slug: string
-): Promise<Article | null> {
-
+): Promise<
+  Article | null
+> {
   const normalizedSlug =
-    normalizeSlug(slug);
+    normalizeSlug(
+      slug
+    );
 
-
-  if (!isFirebaseAdminConfigured()) {
-
-    if (!useDemoContent) {
+  if (
+    !isFirebaseAdminConfigured()
+  ) {
+    if (
+      !useDemoContent
+    ) {
       return null;
     }
 
@@ -329,65 +713,70 @@ export async function getArticleBySlug(
         (article) =>
           normalizeSlug(
             article.slug
-          ) === normalizedSlug
+          ) ===
+          normalizedSlug
       ) || null
     );
   }
 
-
   try {
+    const db =
+      getAdminDb();
 
-    const db = getAdminDb();
+    if (!db) {
+      return null;
+    }
 
-    if (!db) return null;
+    const snapshot =
+      await db
+        .collection(
+          "articles"
+        )
+        .where(
+          "slug",
+          "==",
+          normalizedSlug
+        )
+        .limit(1)
+        .get();
 
-
-    const snapshot = await db
-      .collection("articles")
-      .where(
-        "slug",
-        "==",
-        normalizedSlug
-      )
-      .limit(1)
-      .get();
-
-
-    if (!snapshot.empty) {
-
+    if (
+      !snapshot.empty
+    ) {
       const doc =
         snapshot.docs[0];
 
-
       const article =
-        normalize<Article>(
+        normalizeArticle(
           doc.id,
           doc.data()
         );
 
-
-      return article.status === "published"
+      return article.status ===
+        "published"
         ? article
         : null;
     }
 
-
+    /*
+     * Compatibility fallback for
+     * older slug formats.
+     */
     const articles =
       await getArticles();
-
 
     return (
       articles.find(
         (article) =>
           normalizeSlug(
             article.slug
-          ) === normalizedSlug
+          ) ===
+          normalizedSlug
       ) || null
     );
-
-
-  } catch (error) {
-
+  } catch (
+    error
+  ) {
     console.error(
       "[getArticleBySlug]",
       error
@@ -397,282 +786,349 @@ export async function getArticleBySlug(
   }
 }
 
+/* =========================================
+   PUBLIC SETTINGS
+========================================= */
 
-
-export async function getPublicSettings(): Promise<SiteSettings> {
-
-  const db = getAdminDb();
-
+export async function getPublicSettings(): Promise<
+  SiteSettings
+> {
+  const db =
+    getAdminDb();
 
   if (!db) {
     return DEFAULT_SETTINGS;
   }
 
-
   try {
+    const snap =
+      await db
+        .collection(
+          "settings"
+        )
+        .doc(
+          "public"
+        )
+        .get();
 
-    const snap = await db
-      .collection("settings")
-      .doc("public")
-      .get();
+    if (
+      !snap.exists
+    ) {
+      return DEFAULT_SETTINGS;
+    }
 
-
-    return snap.exists
-      ? {
-          ...DEFAULT_SETTINGS,
-          ...snap.data()
-        }
-      : DEFAULT_SETTINGS;
-
-
-  } catch {
+    return {
+      ...DEFAULT_SETTINGS,
+      ...snap.data()
+    } as SiteSettings;
+  } catch (
+    error
+  ) {
+    console.error(
+      "[getPublicSettings]",
+      error
+    );
 
     return DEFAULT_SETTINGS;
-
   }
 }
 
-
+/* =========================================
+   ADMIN PROJECTS
+========================================= */
 
 export async function getAdminProjects(): Promise<
   Project[]
 > {
-
-  if (!isFirebaseAdminConfigured()) {
-
+  if (
+    !isFirebaseAdminConfigured()
+  ) {
     return useDemoContent
       ? demoProjects
       : [];
-
   }
 
-
-  const items =
-    await firestoreList<Project>(
+  const docs =
+    await firestoreList(
       "projects"
     );
 
-
-  return items.sort(
-    (a, b) =>
-      a.order - b.order
-  );
+  return docs
+    .map(
+      ({
+        id,
+        data
+      }) =>
+        normalizeProject(
+          id,
+          data
+        )
+    )
+    .sort(
+      (
+        a,
+        b
+      ) =>
+        a.order -
+        b.order
+    );
 }
 
-
+/* =========================================
+   ADMIN PROJECT
+========================================= */
 
 export async function getAdminProject(
   id: string
-): Promise<Project | null> {
-
-  if (!isFirebaseAdminConfigured()) {
-
+): Promise<
+  Project | null
+> {
+  if (
+    !isFirebaseAdminConfigured()
+  ) {
     return useDemoContent
       ? demoProjects.find(
           (item) =>
-            item.id === id
+            item.id ===
+            id
         ) || null
       : null;
-
   }
 
+  const db =
+    getAdminDb();
 
-  const db = getAdminDb();
+  if (!db) {
+    return null;
+  }
 
-
-  if (!db) return null;
-
-
-  const snap = await db
-    .collection("projects")
-    .doc(id)
-    .get();
-
-
-  return snap.exists
-    ? normalize<Project>(
-        snap.id,
-        snap.data() || {}
+  const snap =
+    await db
+      .collection(
+        "projects"
       )
-    : null;
+      .doc(id)
+      .get();
 
+  if (
+    !snap.exists
+  ) {
+    return null;
+  }
+
+  return normalizeProject(
+    snap.id,
+    snap.data() || {}
+  );
 }
 
-
+/* =========================================
+   ADMIN SERVICES
+========================================= */
 
 export async function getAdminServices(): Promise<
   Service[]
 > {
-
-  if (!isFirebaseAdminConfigured()) {
-
+  if (
+    !isFirebaseAdminConfigured()
+  ) {
     return useDemoContent
       ? demoServices
       : [];
-
   }
 
-
-  const items =
-    await firestoreList<Service>(
+  const docs =
+    await firestoreList(
       "services"
     );
 
-
-  return items
-    .map((item) => ({
-      ...item,
-      gallery: item.gallery || []
-    }))
+  return docs
+    .map(
+      ({
+        id,
+        data
+      }) =>
+        normalizeService(
+          id,
+          data
+        )
+    )
     .sort(
-      (a, b) =>
-        a.order - b.order
+      (
+        a,
+        b
+      ) =>
+        a.order -
+        b.order
     );
-
 }
 
-
+/* =========================================
+   ADMIN SERVICE
+========================================= */
 
 export async function getAdminService(
   id: string
-): Promise<Service | null> {
-
-
-  if (!isFirebaseAdminConfigured()) {
-
+): Promise<
+  Service | null
+> {
+  if (
+    !isFirebaseAdminConfigured()
+  ) {
     return useDemoContent
       ? demoServices.find(
           (item) =>
-            item.id === id
+            item.id ===
+            id
         ) || null
       : null;
-
   }
 
+  const db =
+    getAdminDb();
 
-  const db = getAdminDb();
-
-
-  if (!db) return null;
-
-
-  const snap = await db
-    .collection("services")
-    .doc(id)
-    .get();
-
-
-
-  if (!snap.exists) {
+  if (!db) {
     return null;
   }
 
+  const snap =
+    await db
+      .collection(
+        "services"
+      )
+      .doc(id)
+      .get();
 
-  const data =
-    snap.data() || {};
+  if (
+    !snap.exists
+  ) {
+    return null;
+  }
 
-
-
-  return {
-    ...normalize<Service>(
-      snap.id,
-      data
-    ),
-    gallery:
-      data.gallery || []
-  };
-
+  return normalizeService(
+    snap.id,
+    snap.data() || {}
+  );
 }
 
-
+/* =========================================
+   ADMIN ARTICLES
+========================================= */
 
 export async function getAdminArticles(): Promise<
   Article[]
 > {
-
-  if (!isFirebaseAdminConfigured()) {
-
+  if (
+    !isFirebaseAdminConfigured()
+  ) {
     return useDemoContent
       ? demoArticles
       : [];
-
   }
 
-
-  const items =
-    await firestoreList<Article>(
+  const docs =
+    await firestoreList(
       "articles"
     );
 
-
-  return items.sort(
-    (a, b) =>
-      +new Date(
-        b.publishedAt
-      ) -
-      +new Date(
-        a.publishedAt
-      )
-  );
-
+  return docs
+    .map(
+      ({
+        id,
+        data
+      }) =>
+        normalizeArticle(
+          id,
+          data
+        )
+    )
+    .sort(
+      (
+        a,
+        b
+      ) =>
+        dateTimestamp(
+          b.publishedAt
+        ) -
+        dateTimestamp(
+          a.publishedAt
+        )
+    );
 }
+
+/* =========================================
+   ADMIN ARTICLE
+========================================= */
+
 export async function getAdminArticle(
   id: string
-): Promise<Article | null> {
-
-  if (!isFirebaseAdminConfigured()) {
-
+): Promise<
+  Article | null
+> {
+  if (
+    !isFirebaseAdminConfigured()
+  ) {
     return useDemoContent
       ? demoArticles.find(
           (item) =>
-            item.id === id
+            item.id ===
+            id
         ) || null
       : null;
-
   }
 
+  const db =
+    getAdminDb();
 
-  const db = getAdminDb();
+  if (!db) {
+    return null;
+  }
 
-
-  if (!db) return null;
-
-
-  const snap = await db
-    .collection("articles")
-    .doc(id)
-    .get();
-
-
-  return snap.exists
-    ? normalize<Article>(
-        snap.id,
-        snap.data() || {}
+  const snap =
+    await db
+      .collection(
+        "articles"
       )
-    : null;
+      .doc(id)
+      .get();
+
+  if (
+    !snap.exists
+  ) {
+    return null;
+  }
+
+  return normalizeArticle(
+    snap.id,
+    snap.data() || {}
+  );
 }
 
-
+/* =========================================
+   ADMIN LEADS
+========================================= */
 
 export async function getAdminLeads(): Promise<
   Lead[]
 > {
+  const db =
+    getAdminDb();
 
-  const db = getAdminDb();
+  if (!db) {
+    return [];
+  }
 
-
-  if (!db) return [];
-
-
-  const snap = await db
-    .collection("leads")
-    .orderBy(
-      "createdAt",
-      "desc"
-    )
-    .limit(200)
-    .get();
-
+  const snap =
+    await db
+      .collection(
+        "leads"
+      )
+      .orderBy(
+        "createdAt",
+        "desc"
+      )
+      .limit(200)
+      .get();
 
   return snap.docs.map(
     (doc) =>
@@ -681,26 +1137,31 @@ export async function getAdminLeads(): Promise<
         doc.data()
       )
   );
-
 }
 
-
+/* =========================================
+   ADMIN LEAD
+========================================= */
 
 export async function getAdminLead(
   id: string
-): Promise<Lead | null> {
+): Promise<
+  Lead | null
+> {
+  const db =
+    getAdminDb();
 
-  const db = getAdminDb();
+  if (!db) {
+    return null;
+  }
 
-
-  if (!db) return null;
-
-
-  const snap = await db
-    .collection("leads")
-    .doc(id)
-    .get();
-
+  const snap =
+    await db
+      .collection(
+        "leads"
+      )
+      .doc(id)
+      .get();
 
   return snap.exists
     ? normalize<Lead>(
@@ -708,5 +1169,4 @@ export async function getAdminLead(
         snap.data() || {}
       )
     : null;
-
 }
