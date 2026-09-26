@@ -17,16 +17,38 @@ type ChangeFrequency =
   | "never";
 
 function createUrl(path = "/") {
-  return new URL(path, `${SITE_URL}/`).toString();
+  return new URL(
+    path,
+    `${SITE_URL}/`
+  ).toString();
+}
+
+function validDate(
+  value?: string | Date | null
+) {
+  if (!value) {
+    return undefined;
+  }
+
+  const date = new Date(value);
+
+  return Number.isNaN(
+    date.getTime()
+  )
+    ? undefined
+    : date;
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [projects, services, articles] =
-    await Promise.all([
-      getProjects(),
-      getServices(),
-      getArticles()
-    ]);
+  const [
+    projects,
+    services,
+    articles
+  ] = await Promise.all([
+    getProjects(),
+    getServices(),
+    getArticles()
+  ]);
 
   const fixedPages: Array<{
     path: string;
@@ -101,44 +123,84 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   const fixedEntries: MetadataRoute.Sitemap =
-    fixedPages.map((page) => ({
-      url: createUrl(page.path),
-      changeFrequency: page.changeFrequency,
-      priority: page.priority
-    }));
-
-  const projectEntries: MetadataRoute.Sitemap =
-    projects.map((project) => ({
-      url: createUrl(
-        `/projects/${project.slug}`
-      ),
-
-      changeFrequency: "monthly",
-      priority: 0.85
-    }));
+    fixedPages.map(
+      ({
+        path,
+        priority,
+        changeFrequency
+      }) => ({
+        url: createUrl(path),
+        priority,
+        changeFrequency
+      })
+    );
 
   const serviceEntries: MetadataRoute.Sitemap =
-    services.map((service) => ({
-      url: createUrl(
-        `/services/${service.slug}`
-      ),
+    services
+      .filter(
+        (service) =>
+          Boolean(service.slug)
+      )
+      .map((service) => ({
+        url: createUrl(
+          `/services/${service.slug}`
+        ),
 
-      changeFrequency: "monthly",
-      priority: 0.9
-    }));
+        changeFrequency:
+          "monthly",
+
+        priority:
+          0.9
+      }));
+
+  const projectEntries: MetadataRoute.Sitemap =
+    projects
+      .filter(
+        (project) =>
+          Boolean(project.slug)
+      )
+      .map((project) => ({
+        url: createUrl(
+          `/projects/${project.slug}`
+        ),
+
+        changeFrequency:
+          "monthly",
+
+        priority:
+          0.85
+      }));
 
   const articleEntries: MetadataRoute.Sitemap =
-    articles.map((article) => ({
-      url: createUrl(
-        `/journal/${article.slug}`
-      ),
+    articles
+      .filter(
+        (article) =>
+          Boolean(article.slug)
+      )
+      .map((article) => {
+        const lastModified =
+          validDate(
+            article.publishedAt
+          );
 
-      lastModified:
-        new Date(article.publishedAt),
+        return {
+          url: createUrl(
+            `/journal/${article.slug}`
+          ),
 
-      changeFrequency: "monthly",
-      priority: 0.7
-    }));
+          ...(lastModified
+            ? {
+                lastModified
+              }
+            : {}),
+
+          changeFrequency:
+            "monthly" as const,
+
+          priority:
+            0.7
+        };
+      });
 
   return [
     ...fixedEntries,
