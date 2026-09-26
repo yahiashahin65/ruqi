@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { Project } from "@/lib/types";
 import { PROJECT_TYPES } from "@/lib/constants";
 import { projectWhatsapp } from "@/lib/whatsapp";
+import { projectImageAlt } from "@/lib/auto-seo";
 
 export function ProjectCard({
   project,
@@ -12,14 +13,18 @@ export function ProjectCard({
   project: Project;
   index?: number;
 }) {
-  const projectUrl = `/projects/${project.slug}`;
+  const projectUrl =
+    `/projects/${project.slug}`;
 
   const projectType =
-    PROJECT_TYPES[project.type] || "تصميم داخلي";
+    PROJECT_TYPES[project.type] ||
+    "تصميم داخلي";
 
   const imageAlt =
-    project.cover.alt ||
-    `مشروع ${project.title} - ${projectType} من رقي الجمال`;
+    projectImageAlt(
+      project,
+      project.cover
+    );
 
   return (
     <article
@@ -50,13 +55,19 @@ export function ProjectCard({
 
       <div className="project-card__meta">
         <div>
-          <h3 id={`project-${project.id}-title`}>
-            <Link href={projectUrl}>
+          <h3
+            id={`project-${project.id}-title`}
+          >
+            <Link
+              href={projectUrl}
+            >
               {project.title}
             </Link>
           </h3>
 
-          <p>{project.excerpt}</p>
+          <p>
+            {project.excerpt}
+          </p>
 
           <div className="project-card__actions">
             <Link
@@ -68,7 +79,9 @@ export function ProjectCard({
             </Link>
 
             <a
-              href={projectWhatsapp(project.title)}
+              href={projectWhatsapp(
+                project.title
+              )}
               target="_blank"
               rel="noopener noreferrer"
               className="button button--whatsapp"
