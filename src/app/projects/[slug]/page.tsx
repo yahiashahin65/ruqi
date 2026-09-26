@@ -3,13 +3,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowUpLeft } from "lucide-react";
+
 import { BeforeAfter } from "@/components/BeforeAfter";
 import { getProjectBySlug } from "@/lib/firebase/data";
+
 import {
   breadcrumbsJsonLd,
   projectJsonLd,
   projectMetadata
 } from "@/lib/seo";
+
 import { PROJECT_TYPES } from "@/lib/constants";
 
 export async function generateMetadata({
@@ -19,85 +22,100 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
 
-  const project = await getProjectBySlug(slug);
+  const project =
+    await getProjectBySlug(slug);
 
   return project
     ? projectMetadata(project)
     : {};
 }
 
-
 export default async function ProjectPage({
   params
 }: {
   params: Promise<{ slug: string }>;
 }) {
-
   const { slug } = await params;
 
-  const project = await getProjectBySlug(slug);
+  const project =
+    await getProjectBySlug(slug);
 
-  if (!project) notFound();
+  if (!project) {
+    notFound();
+  }
 
+  const projectType =
+    PROJECT_TYPES[project.type] ||
+    "تصميم داخلي";
 
-  const projectSchema = projectJsonLd(project);
+  const storyParagraphs =
+    project.story
+      ?.split(/\n\s*\n/)
+      .map((paragraph) =>
+        paragraph.trim()
+      )
+      .filter(Boolean) || [];
 
+  const projectSchema =
+    projectJsonLd(project);
 
-  const crumbs = breadcrumbsJsonLd([
-    {
-      name: "الرئيسية",
-      path: "/"
-    },
-    {
-      name: "المشاريع",
-      path: "/projects"
-    },
-    {
-      name: project.title,
-      path: `/projects/${project.slug}`
-    }
-  ]);
-
+  const crumbs =
+    breadcrumbsJsonLd([
+      {
+        name: "الرئيسية",
+        path: "/"
+      },
+      {
+        name: "المشاريع",
+        path: "/projects"
+      },
+      {
+        name: project.title,
+        path: `/projects/${project.slug}`
+      }
+    ]);
 
   return (
     <main className="project-detail__hero">
 
-
-      <section className="project-detail__hero-image">
-
+      {/* Main Project Image */}
+      <section
+        className="project-detail__hero-image"
+        aria-label={`صورة مشروع ${project.title}`}
+      >
         <Image
           src={project.cover.url}
           alt={
             project.cover.alt ||
-            project.title
+            `مشروع ${project.title} - ${projectType} في المدينة المنورة من رقي الجمال`
           }
           fill
           priority
           sizes="100vw"
           className="project-detail-main-image"
         />
-
       </section>
 
-
-
-      <div className="shell project-detail__intro">
-
-
+      {/* Project Introduction */}
+      <section
+        className="shell project-detail__intro"
+        aria-labelledby="project-title"
+      >
         <p className="eyebrow">
-          {PROJECT_TYPES[project.type]}
+          {projectType} · المدينة المنورة
         </p>
 
-
         <div>
-
-          <h1>
+          <h1 id="project-title">
             {project.title}
           </h1>
 
+          {project.excerpt && (
+            <p className="project-detail__lead">
+              {project.excerpt}
+            </p>
+          )}
         </div>
-
-
 
         <div className="project-detail__facts">
 
@@ -113,10 +131,8 @@ export default async function ProjectPage({
             </div>
           )}
 
-
           {project.duration && (
             <div>
-
               <span>
                 المدة
               </span>
@@ -124,184 +140,177 @@ export default async function ProjectPage({
               <strong>
                 {project.duration}
               </strong>
-
             </div>
           )}
 
-
           {project.style && (
             <div>
-
               <span>
-                الأسلوب
+                أسلوب التصميم
               </span>
 
               <strong>
                 {project.style}
               </strong>
-
             </div>
           )}
 
         </div>
+      </section>
 
-
-      </div>
-
-
-
-
-      <section className="project-story shell">
-
+      {/* Project Story */}
+      <section
+        className="project-story shell"
+        aria-labelledby="project-story-title"
+      >
         <p className="eyebrow">
           عن المشروع
         </p>
 
+        <div className="prose">
+          <h2 id="project-story-title">
+            تفاصيل مشروع {project.title}
+          </h2>
 
-        <p>
-          {project.story}
-        </p>
-
-
+          {storyParagraphs.length ? (
+            storyParagraphs.map(
+              (paragraph, index) => (
+                <p key={index}>
+                  {paragraph}
+                </p>
+              )
+            )
+          ) : (
+            <p>
+              {project.excerpt}
+            </p>
+          )}
+        </div>
       </section>
 
-
-
-
-
+      {/* Project Gallery */}
       {project.gallery.length > 0 && (
-
-        <section className="shell gallery-grid">
-
+        <section
+          className="shell gallery-grid"
+          aria-label={`صور مشروع ${project.title}`}
+        >
           {project.gallery.map(
-            (image,index)=>(
-              
+            (image, index) => (
               <div
                 className="gallery-grid__item"
                 key={`${image.url}-${index}`}
                 data-reveal
               >
-
                 <Image
                   src={image.url}
                   alt={
                     image.alt ||
-                    `${project.title} - صورة ${index + 1}`
+                    `${project.title} - ${projectType} في المدينة المنورة - صورة ${index + 1}`
                   }
                   fill
-                  sizes="(max-width:900px) 100vw,70vw"
+                  sizes="(max-width: 900px) 100vw, 70vw"
                   className="project-gallery-image"
                 />
-
               </div>
-
             )
           )}
-
         </section>
-
       )}
 
-
-
-
-
-
+      {/* Before / After */}
       {project.before &&
         project.after && (
+          <section
+            className="section"
+            aria-labelledby="before-after-title"
+          >
+            <div className="shell">
 
-        <section className="section">
+              <p className="eyebrow">
+                قبل وبعد
+              </p>
 
-          <div className="shell">
+              <h2
+                id="before-after-title"
+                className="sr-only"
+              >
+                مقارنة قبل وبعد مشروع {project.title}
+              </h2>
 
-            <p className="eyebrow">
-              قبل وبعد
-            </p>
+              <BeforeAfter
+                before={
+                  project.before.url
+                }
+                after={
+                  project.after.url
+                }
+                title={
+                  project.title
+                }
+              />
 
+            </div>
+          </section>
+        )}
 
-            <BeforeAfter
-              before={project.before.url}
-              after={project.after.url}
-              title={project.title}
-            />
-
-
-          </div>
-
-        </section>
-
-      )}
-
-
-
-
-
-
-
-      <section className="section">
-
+      {/* CTA */}
+      <section
+        className="section"
+        aria-labelledby="similar-project-title"
+      >
         <div className="shell section-heading">
 
           <p className="eyebrow">
             عندك مشروع مشابه؟
           </p>
 
-
-          <h2>
+          <h2 id="similar-project-title">
             ابدأ مشروعك
             <br />
             بخطوة واضحة.
           </h2>
 
-
           <div>
-
             <p className="section-heading__text">
-              شاركنا التفاصيل الأساسية،
-              وسيتواصل معك فريق رُقِيّ الجمال
-              لمناقشة الخطوة التالية.
+              إذا كنت تخطط لمشروع تصميم داخلي
+              أو تجديد أو تنفيذ في المدينة المنورة،
+              شاركنا التفاصيل الأساسية وسيتواصل
+              معك فريق رُقِيّ الجمال لمناقشة
+              احتياجات المشروع والخطوة التالية.
             </p>
-
 
             <Link
               className="text-link"
               href="/start-project"
+              aria-label={`ابدأ مشروع تصميم داخلي مشابه لمشروع ${project.title}`}
             >
-              ابدأ مشروعك
-              <ArrowUpLeft size={18}/>
+              ابدأ مشروعك مع رُقِيّ الجمال
+              <ArrowUpLeft size={18} />
             </Link>
-
-
           </div>
 
-
         </div>
-
-
       </section>
 
-
-
-
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html:
+            JSON.stringify(
+              projectSchema
+            )
+        }}
+      />
 
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html:
-          JSON.stringify(projectSchema)
+            JSON.stringify(
+              crumbs
+            )
         }}
       />
-
-
-
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html:
-          JSON.stringify(crumbs)
-        }}
-      />
-
 
     </main>
   );
