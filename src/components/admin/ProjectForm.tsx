@@ -2,16 +2,47 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowDown, ArrowUp, Trash2 } from "lucide-react";
-import type { MediaRef, Project, ProjectType } from "@/lib/types";
-import { ImageUploader, type UploadedMedia } from "./ImageUploader";
+import {
+  ArrowDown,
+  ArrowUp,
+  Trash2
+} from "lucide-react";
 
-const projectTypes: Array<{ value: ProjectType; label: string }> = [
-  { value: "residential", label: "سكني" },
-  { value: "commercial", label: "تجاري" },
-  { value: "hospitality", label: "ضيافة" },
-  { value: "office", label: "مكاتب" },
-  { value: "renovation", label: "تجديد" }
+import type {
+  MediaRef,
+  Project,
+  ProjectType
+} from "@/lib/types";
+
+import {
+  ImageUploader,
+  type UploadedMedia
+} from "./ImageUploader";
+
+const projectTypes: Array<{
+  value: ProjectType;
+  label: string;
+}> = [
+  {
+    value: "residential",
+    label: "سكني"
+  },
+  {
+    value: "commercial",
+    label: "تجاري"
+  },
+  {
+    value: "hospitality",
+    label: "ضيافة"
+  },
+  {
+    value: "office",
+    label: "مكاتب"
+  },
+  {
+    value: "renovation",
+    label: "تجديد"
+  }
 ];
 
 type ProjectEditor = {
@@ -31,22 +62,62 @@ type ProjectEditor = {
   status: "draft" | "published";
 };
 
-function initialState(project?: Project): ProjectEditor {
+function initialState(
+  project?: Project
+): ProjectEditor {
   return {
-    title: project?.title || "",
-    type: project?.type || "residential",
-    style: project?.style || "",
-    area: project?.area ? String(project.area) : "",
-    duration: project?.duration || "",
-    excerpt: project?.excerpt || "",
-    story: project?.story || "",
-    cover: project?.cover,
-    gallery: project?.gallery || [],
-    before: project?.before,
-    after: project?.after,
-    featured: project?.featured || false,
-    order: project?.order ?? 1,
-    status: project?.status || "draft"
+    title:
+      project?.title || "",
+
+    type:
+      project?.type ||
+      "residential",
+
+    style:
+      project?.style || "",
+
+    area:
+      project?.area
+        ? String(
+            project.area
+          )
+        : "",
+
+    duration:
+      project?.duration ||
+      "",
+
+    excerpt:
+      project?.excerpt ||
+      "",
+
+    story:
+      project?.story ||
+      "",
+
+    cover:
+      project?.cover,
+
+    gallery:
+      project?.gallery ||
+      [],
+
+    before:
+      project?.before,
+
+    after:
+      project?.after,
+
+    featured:
+      project?.featured ||
+      false,
+
+    order:
+      project?.order ?? 1,
+
+    status:
+      project?.status ||
+      "draft"
   };
 }
 
@@ -55,125 +126,210 @@ export function ProjectForm({
 }: {
   project?: Project;
 }) {
-  const router = useRouter();
+  const router =
+    useRouter();
 
-  const [form, setForm] = useState<ProjectEditor>(() =>
-    initialState(project)
+  const [
+    form,
+    setForm
+  ] = useState<ProjectEditor>(
+    () =>
+      initialState(
+        project
+      )
   );
 
-  const [message, setMessage] = useState("");
-  const [saving, setSaving] = useState(false);
+  const [
+    message,
+    setMessage
+  ] = useState("");
 
+  const [
+    saving,
+    setSaving
+  ] = useState(false);
 
-  const set = <K extends keyof ProjectEditor>(
+  const set = <
+    K extends keyof ProjectEditor
+  >(
     key: K,
     value: ProjectEditor[K]
   ) => {
-    setForm((prev) => ({
-      ...prev,
-      [key]: value
-    }));
+    setForm(
+      (prev) => ({
+        ...prev,
+        [key]: value
+      })
+    );
   };
 
+  const currentProjectType =
+    projectTypes.find(
+      (item) =>
+        item.value ===
+        form.type
+    )?.label ||
+    "تصميم داخلي";
 
-  async function save(event: React.FormEvent) {
+  const beforeAlt =
+    form.title.trim()
+      ? `مشروع ${form.title} - ${currentProjectType} في المدينة المنورة - قبل التنفيذ - رقي الجمال`
+      : "";
+
+  const afterAlt =
+    form.title.trim()
+      ? `مشروع ${form.title} - ${currentProjectType} في المدينة المنورة - بعد التنفيذ - رقي الجمال`
+      : "";
+
+  async function save(
+    event: React.FormEvent
+  ) {
     event.preventDefault();
 
     setSaving(true);
     setMessage("");
 
-    const response = await fetch(
-      project
-        ? `/api/admin/projects/${project.id}`
-        : "/api/admin/projects",
-      {
-        method: project ? "PATCH" : "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          title: form.title,
-          type: form.type,
-          style: form.style,
-          area: form.area
-            ? Number(form.area)
-            : undefined,
-          duration: form.duration,
-          excerpt: form.excerpt,
-          story: form.story,
+    const response =
+      await fetch(
+        project
+          ? `/api/admin/projects/${project.id}`
+          : "/api/admin/projects",
+        {
+          method:
+            project
+              ? "PATCH"
+              : "POST",
 
-          cover: form.cover,
-          gallery: form.gallery,
-          before: form.before,
-          after: form.after,
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
 
-          featured: form.featured,
+          body:
+            JSON.stringify({
+              title:
+                form.title,
 
-          order: Number(form.order),
+              type:
+                form.type,
 
-          status: form.status
-        })
-      }
-    );
+              style:
+                form.style,
 
+              area:
+                form.area
+                  ? Number(
+                      form.area
+                    )
+                  : undefined,
 
-    const data = await response.json();
+              duration:
+                form.duration,
 
+              excerpt:
+                form.excerpt,
 
-    if (!response.ok) {
+              story:
+                form.story,
+
+              cover:
+                form.cover,
+
+              gallery:
+                form.gallery,
+
+              before:
+                form.before,
+
+              after:
+                form.after,
+
+              featured:
+                form.featured,
+
+              order:
+                Number(
+                  form.order
+                ),
+
+              status:
+                form.status
+            })
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (
+      !response.ok
+    ) {
       setMessage(
-        data.error || "تعذر حفظ المشروع"
+        data.error ||
+          "تعذر حفظ المشروع"
       );
     } else {
-      router.push("/admin/projects");
+      router.push(
+        "/admin/projects"
+      );
+
       router.refresh();
     }
 
-
     setSaving(false);
-    }
-      function moveGallery(
+  }
+
+  function moveGallery(
     index: number,
     direction: -1 | 1
   ) {
-    setForm((prev) => {
-      const next = [...prev.gallery];
+    setForm(
+      (prev) => {
+        const next = [
+          ...prev.gallery
+        ];
 
-      const target = index + direction;
+        const target =
+          index +
+          direction;
 
-      if (
-        target < 0 ||
-        target >= next.length
-      ) {
-        return prev;
+        if (
+          target < 0 ||
+          target >=
+            next.length
+        ) {
+          return prev;
+        }
+
+        [
+          next[index],
+          next[target]
+        ] = [
+          next[target],
+          next[index]
+        ];
+
+        return {
+          ...prev,
+          gallery:
+            next
+        };
       }
-
-      [
-        next[index],
-        next[target]
-      ] = [
-        next[target],
-        next[index]
-      ];
-
-      return {
-        ...prev,
-        gallery: next
-      };
-    });
+    );
   }
-
 
   return (
     <form
       className="admin-form"
       onSubmit={save}
     >
-
       <div className="admin-form-section">
 
         <div className="admin-form-section__head">
-          <span>01</span>
+
+          <span>
+            01
+          </span>
 
           <div>
             <h2>
@@ -184,8 +340,8 @@ export function ProjectForm({
               المعلومات الأساسية التي يحتاجها الزائر لفهم المشروع.
             </p>
           </div>
-        </div>
 
+        </div>
 
         <div className="admin-form__grid">
 
@@ -196,8 +352,12 @@ export function ProjectForm({
             </label>
 
             <input
-              value={form.title}
-              onChange={(e)=>
+              value={
+                form.title
+              }
+              onChange={(
+                e
+              ) =>
                 set(
                   "title",
                   e.target.value
@@ -208,7 +368,6 @@ export function ProjectForm({
 
           </div>
 
-
           <div className="field">
 
             <label>
@@ -216,29 +375,36 @@ export function ProjectForm({
             </label>
 
             <select
-              value={form.type}
-              onChange={(e)=>
+              value={
+                form.type
+              }
+              onChange={(
+                e
+              ) =>
                 set(
                   "type",
-                  e.target.value as ProjectType
+                  e.target
+                    .value as ProjectType
                 )
               }
             >
-
-              {projectTypes.map((item)=>(
-                <option
-                  key={item.value}
-                  value={item.value}
-                >
-                  {item.label}
-                </option>
-              ))}
-
+              {projectTypes.map(
+                (item) => (
+                  <option
+                    key={
+                      item.value
+                    }
+                    value={
+                      item.value
+                    }
+                  >
+                    {item.label}
+                  </option>
+                )
+              )}
             </select>
 
           </div>
-
-
 
           <div className="field">
 
@@ -249,20 +415,25 @@ export function ProjectForm({
             <input
               type="number"
               min="1"
-              value={form.order}
-              onChange={(e)=>
+              value={
+                form.order
+              }
+              onChange={(
+                e
+              ) =>
                 set(
                   "order",
                   e.target.value
-                    ? Number(e.target.value)
+                    ? Number(
+                        e.target
+                          .value
+                      )
                     : 1
                 )
               }
             />
 
           </div>
-
-
 
           <div className="field">
 
@@ -271,8 +442,12 @@ export function ProjectForm({
             </label>
 
             <input
-              value={form.style}
-              onChange={(e)=>
+              value={
+                form.style
+              }
+              onChange={(
+                e
+              ) =>
                 set(
                   "style",
                   e.target.value
@@ -283,8 +458,6 @@ export function ProjectForm({
 
           </div>
 
-
-
           <div className="field">
 
             <label>
@@ -294,8 +467,12 @@ export function ProjectForm({
             <input
               type="number"
               min="1"
-              value={form.area}
-              onChange={(e)=>
+              value={
+                form.area
+              }
+              onChange={(
+                e
+              ) =>
                 set(
                   "area",
                   e.target.value
@@ -306,8 +483,6 @@ export function ProjectForm({
 
           </div>
 
-
-
           <div className="field">
 
             <label>
@@ -315,8 +490,12 @@ export function ProjectForm({
             </label>
 
             <input
-              value={form.duration}
-              onChange={(e)=>
+              value={
+                form.duration
+              }
+              onChange={(
+                e
+              ) =>
                 set(
                   "duration",
                   e.target.value
@@ -327,21 +506,19 @@ export function ProjectForm({
 
           </div>
 
-
         </div>
 
       </div>
-
-
 
       <div className="admin-form-section">
 
         <div className="admin-form-section__head">
 
-          <span>02</span>
+          <span>
+            02
+          </span>
 
           <div>
-
             <h2>
               المحتوى
             </h2>
@@ -349,15 +526,11 @@ export function ProjectForm({
             <p>
               وصف المشروع وقصته.
             </p>
-
           </div>
 
         </div>
 
-
-
         <div className="admin-form__grid">
-
 
           <div className="field field--full">
 
@@ -366,8 +539,12 @@ export function ProjectForm({
             </label>
 
             <textarea
-              value={form.excerpt}
-              onChange={(e)=>
+              value={
+                form.excerpt
+              }
+              onChange={(
+                e
+              ) =>
                 set(
                   "excerpt",
                   e.target.value
@@ -378,8 +555,6 @@ export function ProjectForm({
 
           </div>
 
-
-
           <div className="field field--full">
 
             <label>
@@ -388,8 +563,12 @@ export function ProjectForm({
 
             <textarea
               className="admin-textarea--large"
-              value={form.story}
-              onChange={(e)=>
+              value={
+                form.story
+              }
+              onChange={(
+                e
+              ) =>
                 set(
                   "story",
                   e.target.value
@@ -400,21 +579,19 @@ export function ProjectForm({
 
           </div>
 
-
         </div>
 
       </div>
-
-
 
       <div className="admin-form-section">
 
         <div className="admin-form-section__head">
 
-          <span>03</span>
+          <span>
+            03
+          </span>
 
           <div>
-
             <h2>
               الصور
             </h2>
@@ -422,41 +599,44 @@ export function ProjectForm({
             <p>
               الصورة الرئيسية والجاليري وصور قبل وبعد.
             </p>
-
           </div>
 
         </div>
 
-
-
         <div className="admin-form__grid">
-
 
           <ImageUploader
             label="الصورة الرئيسية"
             value={
-              form.cover as UploadedMedia | undefined
+              form.cover as
+                | UploadedMedia
+                | undefined
             }
-            onChange={(media)=>
+            onChange={(
+              media
+            ) =>
               set(
                 "cover",
                 media
               )
             }
-            onClear={()=>
+            onClear={() =>
               set(
                 "cover",
                 undefined
               )
             }
             folder="projects"
+            contentTitle={
+              form.title
+            }
           />
-
-
 
           <ImageUploader
             label="إضافة صورة للجاليري"
-            onChange={(media)=>
+            onChange={(
+              media
+            ) =>
               set(
                 "gallery",
                 [
@@ -466,147 +646,195 @@ export function ProjectForm({
               )
             }
             folder="projects"
+            contentTitle={
+              form.title
+            }
+            imageIndex={
+              form.gallery
+                .length
+            }
           />
 
-
-
-          {form.gallery.length > 0 && (
-
+          {form.gallery.length >
+            0 && (
             <div className="field field--full">
 
               <label>
                 صور المشروع
               </label>
 
-
               <div className="admin-gallery-manager">
 
                 {form.gallery.map(
-                  (image,index)=>(
-                    
+                  (
+                    image,
+                    index
+                  ) => (
                     <div
                       className="admin-gallery-item"
                       key={`${image.url}-${index}`}
                     >
-
                       <img
-                        src={image.url}
+                        src={
+                          image.url
+                        }
                         alt={
                           image.alt ||
-                          `صورة ${index + 1}`
+                          `مشروع ${form.title} - ${currentProjectType} في المدينة المنورة - صورة ${index + 1} - رقي الجمال`
                         }
                       />
 
-
                       <div className="admin-gallery-item__actions">
 
-
                         <button
                           type="button"
-                          onClick={()=>
-                            moveGallery(index,-1)
-                          }
-                          disabled={index===0}
-                        >
-                          <ArrowUp size={15}/>
-                        </button>
-
-
-                        <button
-                          type="button"
-                          onClick={()=>
-                            moveGallery(index,1)
+                          onClick={() =>
+                            moveGallery(
+                              index,
+                              -1
+                            )
                           }
                           disabled={
-                            index === form.gallery.length - 1
+                            index ===
+                            0
                           }
+                          aria-label="تحريك الصورة لأعلى"
                         >
-                          <ArrowDown size={15}/>
+                          <ArrowUp
+                            size={15}
+                            aria-hidden="true"
+                          />
                         </button>
-
 
                         <button
                           type="button"
-                          onClick={()=>
+                          onClick={() =>
+                            moveGallery(
+                              index,
+                              1
+                            )
+                          }
+                          disabled={
+                            index ===
+                            form.gallery
+                              .length -
+                              1
+                          }
+                          aria-label="تحريك الصورة لأسفل"
+                        >
+                          <ArrowDown
+                            size={15}
+                            aria-hidden="true"
+                          />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() =>
                             set(
                               "gallery",
                               form.gallery.filter(
-                                (_,i)=>i!==index
+                                (
+                                  _,
+                                  i
+                                ) =>
+                                  i !==
+                                  index
                               )
                             )
                           }
+                          aria-label="حذف الصورة من الجاليري"
                         >
-                          <Trash2 size={15}/>
+                          <Trash2
+                            size={15}
+                            aria-hidden="true"
+                          />
                         </button>
-
 
                       </div>
 
-
                     </div>
-
                   )
                 )}
 
               </div>
 
-
             </div>
-
           )}
-
-
 
           <ImageUploader
             label="صورة قبل - اختياري"
             value={
-              form.before as UploadedMedia | undefined
+              form.before as
+                | UploadedMedia
+                | undefined
             }
-            onChange={(media)=>
+            onChange={(
+              media
+            ) =>
               set(
                 "before",
-                media
+                {
+                  ...media,
+                  alt:
+                    beforeAlt
+                }
               )
             }
-            onClear={()=>
+            onClear={() =>
               set(
                 "before",
                 undefined
               )
             }
             folder="projects"
+            contentTitle={
+              form.title
+            }
           />
-
-
 
           <ImageUploader
             label="صورة بعد - اختياري"
             value={
-              form.after as UploadedMedia | undefined
+              form.after as
+                | UploadedMedia
+                | undefined
             }
-            onChange={(media)=>
+            onChange={(
+              media
+            ) =>
               set(
                 "after",
-                media
+                {
+                  ...media,
+                  alt:
+                    afterAlt
+                }
               )
             }
-            onClear={()=>
+            onClear={() =>
               set(
                 "after",
                 undefined
               )
             }
             folder="projects"
+            contentTitle={
+              form.title
+            }
           />
-
 
         </div>
 
       </div>
-            <div className="admin-form-section">
+
+      <div className="admin-form-section">
 
         <div className="admin-form-section__head">
-          <span>04</span>
+
+          <span>
+            04
+          </span>
 
           <div>
             <h2>
@@ -615,7 +843,6 @@ export function ProjectForm({
           </div>
 
         </div>
-
 
         <div className="admin-form__grid">
 
@@ -626,16 +853,21 @@ export function ProjectForm({
             </label>
 
             <select
-              value={form.status}
-              onChange={(e)=>
+              value={
+                form.status
+              }
+              onChange={(
+                e
+              ) =>
                 set(
                   "status",
-                  e.target.value as
-                  "draft" | "published"
+                  e.target
+                    .value as
+                    | "draft"
+                    | "published"
                 )
               }
             >
-
               <option value="draft">
                 مسودة
               </option>
@@ -643,11 +875,9 @@ export function ProjectForm({
               <option value="published">
                 منشور
               </option>
-
             </select>
 
           </div>
-
 
           <label className="field admin-check-field">
 
@@ -657,22 +887,25 @@ export function ProjectForm({
 
             <input
               type="checkbox"
-              checked={form.featured}
-              onChange={(e)=>
+              checked={
+                form.featured
+              }
+              onChange={(
+                e
+              ) =>
                 set(
                   "featured",
-                  e.target.checked
+                  e.target
+                    .checked
                 )
               }
             />
 
           </label>
 
-
         </div>
 
       </div>
-
 
       {message && (
         <div className="notice">
@@ -680,28 +913,22 @@ export function ProjectForm({
         </div>
       )}
 
-
-
       <button
+        type="submit"
         className="button button--solid"
         style={{
-          marginTop:22
+          marginTop: 22
         }}
         disabled={
           saving ||
           !form.cover?.url
         }
       >
-
-        {
-          saving
-            ? "جاري الحفظ..."
-            : "حفظ المشروع"
-        }
-
+        {saving
+          ? "جاري الحفظ..."
+          : "حفظ المشروع"}
       </button>
-
 
     </form>
   );
-          }
+  }
