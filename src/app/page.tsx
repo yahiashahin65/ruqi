@@ -1,6 +1,8 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpLeft } from "lucide-react";
+
 import { Hero } from "@/components/Hero";
 import { ProjectCard } from "@/components/ProjectCard";
 import { ServiceCard } from "@/components/ServiceCard";
@@ -9,10 +11,84 @@ import { ProcessStrip } from "@/components/ProcessStrip";
 import { BeforeAfter } from "@/components/BeforeAfter";
 import { getProjects, getServices } from "@/lib/firebase/data";
 
+const SITE_URL = "https://ruqialjamal.com";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "رقي الجمال | تصميم داخلي وديكور في المدينة المنورة",
+  },
+
+  description:
+    "رقي الجمال للتصميم الداخلي والديكور في المدينة المنورة. تصميم وتنفيذ وتجديد الفلل والمنازل والمجالس والمقاهي والعيادات والمساحات التجارية.",
+
+  alternates: {
+    canonical: SITE_URL,
+  },
+
+  openGraph: {
+    type: "website",
+    locale: "ar_SA",
+    url: SITE_URL,
+    siteName: "رقي الجمال",
+    title: "رقي الجمال | تصميم داخلي وديكور في المدينة المنورة",
+    description:
+      "خدمات التصميم الداخلي والديكور والتنفيذ والتجديد في المدينة المنورة للمشاريع السكنية والتجارية.",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "رقي الجمال | تصميم داخلي وديكور في المدينة المنورة",
+    description:
+      "تصميم داخلي وديكور وتنفيذ وتجديد للمشاريع السكنية والتجارية في المدينة المنورة.",
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+};
+
+const homePageSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "@id": `${SITE_URL}/#webpage`,
+  url: SITE_URL,
+  name: "رقي الجمال | تصميم داخلي وديكور في المدينة المنورة",
+  description:
+    "رقي الجمال للتصميم الداخلي والديكور والتنفيذ والتجديد في المدينة المنورة.",
+  inLanguage: "ar-SA",
+
+  isPartOf: {
+    "@type": "WebSite",
+    "@id": `${SITE_URL}/#website`,
+    url: SITE_URL,
+    name: "رقي الجمال",
+    alternateName: "رُقِيّ الجمال",
+  },
+
+  about: {
+    "@type": "ProfessionalService",
+    name: "رقي الجمال",
+    alternateName: "رُقِيّ الجمال",
+    url: SITE_URL,
+    areaServed: {
+      "@type": "City",
+      name: "المدينة المنورة",
+    },
+  },
+};
+
 export default async function HomePage() {
   const [projects, services] = await Promise.all([
     getProjects(),
-    getServices()
+    getServices(),
   ]);
 
   const featured = projects
@@ -27,6 +103,13 @@ export default async function HomePage() {
 
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(homePageSchema),
+        }}
+      />
+
       <Hero
         image={
           selectedProjects[0]?.cover ||
@@ -70,6 +153,7 @@ export default async function HomePage() {
             data-reveal
           >
             <span>نخدم</span>
+
             <strong>
               المدينة المنورة
             </strong>
@@ -92,14 +176,14 @@ export default async function HomePage() {
               </p>
 
               <h2>
-                مشاريع مختارة
+                مشاريع تصميم داخلي وتنفيذ مختارة
               </h2>
             </div>
 
             <p>
-              نقدم المشاريع كقصص واضحة: لماذا اتخذنا القرار،
-              وكيف خدم الاستخدام، وكيف تحولت الخامة إلى جزء من
-              التجربة.
+              مجموعة من مشاريع التصميم الداخلي والتنفيذ نعرض فيها
+              الفكرة والمواد وتوزيع المساحات وكيف تحولت التفاصيل
+              إلى تجربة متكاملة تناسب استخدام المكان.
             </p>
           </div>
 
@@ -119,7 +203,7 @@ export default async function HomePage() {
             className="text-link"
             href="/projects"
           >
-            جميع المشاريع
+            شاهد جميع مشاريع التصميم الداخلي
             <ArrowUpLeft size={18} />
           </Link>
         </div>
@@ -128,58 +212,52 @@ export default async function HomePage() {
       <StudioStatement />
 
       <section
-  className="selected-work"
-  id="services"
->
-  <div className="shell">
+        className="selected-work"
+        id="services"
+      >
+        <div className="shell">
+          <div
+            className="selected-work__top"
+            data-reveal
+          >
+            <div>
+              <p className="eyebrow">
+                خدماتنا
+              </p>
 
-    <div
-      className="selected-work__top"
-      data-reveal
-    >
-      <div>
-        <p className="eyebrow">
-          خدماتنا
-        </p>
+              <h2>
+                خدمات التصميم الداخلي والتنفيذ
+              </h2>
+            </div>
 
-        <h2>
-          حلول التصميم والتنفيذ
-        </h2>
-      </div>
+            <p>
+              نقدم خدمات متكاملة للمشاريع السكنية والتجارية تبدأ
+              من دراسة المساحة والتصميم واختيار المواد وحتى التنفيذ
+              والتشطيب والتسليم.
+            </p>
+          </div>
 
-      <p>
-        نقدم خدمات متكاملة تبدأ من دراسة المساحة
-        والتصميم وحتى التنفيذ والتسليم.
-      </p>
-    </div>
+          <div className="projects-editorial">
+            {services
+              .slice(0, 10)
+              .map((service, index) => (
+                <ServiceCard
+                  key={service.id}
+                  service={service}
+                  index={index}
+                />
+              ))}
+          </div>
 
-
-    <div className="projects-editorial">
-
-      {services
-        .slice(0, 10)
-        .map((service, index) => (
-          <ServiceCard
-            key={service.id}
-            service={service}
-            index={index}
-          />
-        ))}
-
-    </div>
-
-
-    <Link
-      className="text-link"
-      href="/services"
-    >
-      جميع الخدمات
-      <ArrowUpLeft size={18} />
-    </Link>
-
-
-  </div>
-</section>
+          <Link
+            className="text-link"
+            href="/services"
+          >
+            استكشف جميع خدمات التصميم والتنفيذ
+            <ArrowUpLeft size={18} />
+          </Link>
+        </div>
+      </section>
 
       {caseStudy && (
         <section className="home-case">
@@ -212,7 +290,7 @@ export default async function HomePage() {
                 className="text-link"
                 href={`/projects/${caseStudy.slug}`}
               >
-                عرض المشروع
+                شاهد تفاصيل المشروع
                 <ArrowUpLeft
                   size={18}
                 />
@@ -229,7 +307,7 @@ export default async function HomePage() {
                 }
                 alt={
                   caseStudy.cover.alt ||
-                  caseStudy.title
+                  `مشروع ${caseStudy.title} - رقي الجمال`
                 }
                 fill
                 sizes="60vw"
@@ -249,12 +327,13 @@ export default async function HomePage() {
                 </p>
 
                 <h2>
-                  التغيير الجيد لا يبدأ من اللون.
+                  كيف تتغير المساحة بعد إعادة التصميم؟
                 </h2>
 
                 <p className="section-heading__text">
-                  اسحب للمقارنة بين الحالة السابقة واتجاه التصميم
-                  بعد إعادة توزيع وتشكيل الفراغ.
+                  قارن بين الحالة السابقة واتجاه التصميم بعد إعادة
+                  توزيع الفراغ واختيار المواد والإضاءة والتفاصيل
+                  المناسبة للمكان.
                 </p>
               </div>
 
@@ -292,18 +371,19 @@ export default async function HomePage() {
               className="section-heading__text"
               style={{
                 color:
-                  "rgba(255,255,255,.62)"
+                  "rgba(255,255,255,.62)",
               }}
             >
-              اختبار قصير يحدد لغة أولية للمواد والإضاءة والشعور
-              العام قبل بدء التصميم.
+              اختبار قصير يساعدك على تحديد اتجاه أولي للمواد
+              والإضاءة والألوان والشعور العام للمساحة قبل بدء
+              مرحلة التصميم.
             </p>
 
             <Link
               className="text-link text-link--light"
               href="/style-finder"
             >
-              ابدأ الاختبار
+              ابدأ اختبار اتجاه التصميم
               <ArrowUpLeft
                 size={18}
               />
@@ -319,23 +399,24 @@ export default async function HomePage() {
           </p>
 
           <h2>
-            خدمة محلية.
+            تصميم داخلي وديكور
             <br />
-            رؤية مدروسة.
+            في المدينة المنورة
           </h2>
 
           <div>
             <p className="section-heading__text">
-              نعمل داخل المدينة المنورة في التصميم الداخلي والتجديد
-              والتنفيذ للمنازل والفلل والمجالس والمقاهي والعيادات
-              والمساحات التجارية.
+              تقدم رُقِيّ الجمال خدمات التصميم الداخلي والديكور
+              والتجديد والتنفيذ في المدينة المنورة للفلل والمنازل
+              والمجالس والمقاهي والعيادات والمتاجر والمساحات
+              التجارية.
             </p>
 
             <Link
               className="text-link"
               href="/madinah-interior-design"
             >
-              تفاصيل الخدمة في المدينة
+              تصميم داخلي في المدينة المنورة
               <ArrowUpLeft
                 size={18}
               />
@@ -345,4 +426,4 @@ export default async function HomePage() {
       </section>
     </main>
   );
-}
+      }
