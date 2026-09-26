@@ -1,51 +1,86 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { Article } from "@/lib/types";
 import { ArrowUpLeft } from "lucide-react";
+
+import type { Article } from "@/lib/types";
 import { articleWhatsapp } from "@/lib/whatsapp";
 
-export function ArticleCard({ article }: { article: Article }) {
+export function ArticleCard({
+  article
+}: {
+  article: Article;
+}) {
+  const articleUrl =
+    `/journal/${article.slug}`;
+
+  const publishedDate =
+    new Date(article.publishedAt);
+
+  const hasValidDate =
+    !Number.isNaN(
+      publishedDate.getTime()
+    );
+
+  const formattedDate =
+    hasValidDate
+      ? new Intl.DateTimeFormat(
+          "ar-SA",
+          {
+            dateStyle: "medium"
+          }
+        ).format(publishedDate)
+      : null;
+
+  const imageAlt =
+    article.cover.alt ||
+    `${article.title} - مجلة رقي الجمال`;
+
   return (
-    <article className="article-card" data-reveal>
-
-
+    <article
+      className="article-card"
+      data-reveal
+      aria-labelledby={`article-${article.id}-title`}
+    >
       <Link
         className="article-card__image"
-        href={`/journal/${article.slug}`}
+        href={articleUrl}
+        aria-label={`اقرا مقال ${article.title}`}
       >
         <Image
           src={article.cover.url}
-          alt={article.cover.alt || article.title}
+          alt={imageAlt}
           fill
           sizes="(max-width: 700px) 100vw, 33vw"
         />
       </Link>
 
-
-
       <div className="article-card__meta">
 
-        <span>
-          {article.category}
-        </span>
+        {article.category && (
+          <span>
+            {article.category}
+          </span>
+        )}
 
-        <time>
-          {new Intl.DateTimeFormat("ar-SA", {
-            dateStyle: "medium"
-          }).format(new Date(article.publishedAt))}
-        </time>
+        {formattedDate && (
+          <time
+            dateTime={
+              publishedDate.toISOString()
+            }
+          >
+            {formattedDate}
+          </time>
+        )}
 
       </div>
 
-
-
-      <h2>
-        <Link href={`/journal/${article.slug}`}>
+      <h3
+        id={`article-${article.id}-title`}
+      >
+        <Link href={articleUrl}>
           {article.title}
         </Link>
-      </h2>
-
-
+      </h3>
 
       {article.excerpt && (
         <p className="article-card__excerpt">
@@ -53,34 +88,33 @@ export function ArticleCard({ article }: { article: Article }) {
         </p>
       )}
 
-
-
       <div className="article-card__actions">
 
-
         <Link
-          href={`/journal/${article.slug}`}
+          href={articleUrl}
           className="button button--solid"
+          aria-label={`اقرا مقال ${article.title}`}
         >
-          اقرأ المقال
-          <ArrowUpLeft size={18} />
+          اقرا المقال
+          <ArrowUpLeft
+            size={18}
+            aria-hidden="true"
+          />
         </Link>
 
-
-
         <a
-          href={articleWhatsapp(article.title)}
+          href={articleWhatsapp(
+            article.title
+          )}
           target="_blank"
           rel="noopener noreferrer"
           className="button button--whatsapp"
+          aria-label={`اطلب استشاره متعلقه بمقال ${article.title} عبر واتساب`}
         >
-          اطلب استشارة
+          اطلب استشاره
         </a>
 
-
       </div>
-
-
     </article>
   );
 }
