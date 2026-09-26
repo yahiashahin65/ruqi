@@ -8,14 +8,30 @@ export function PageHero({
   lead?: string;
 }) {
   return (
-    <section className="page-hero">
+    <header
+      className="page-hero"
+      aria-labelledby="page-hero-title"
+    >
       <div className="shell page-hero__grid">
-        <p className="eyebrow">{eyebrow}</p>
+        <p className="eyebrow">
+          {eyebrow}
+        </p>
+
         <div>
-          <h1>{title}</h1>
-          {lead && <p className="page-hero__lead">{lead}</p>}
+          <h1 id="page-hero-title">
+            {title}
+          </h1>
+
+          {lead && (
+            <p
+              className="page-hero__lead"
+              id="page-hero-description"
+            >
+              {lead}
+            </p>
+          )}
         </div>
       </div>
-    </section>
+    </header>
   );
 }
