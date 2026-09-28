@@ -3,7 +3,7 @@ import { Phone } from "lucide-react";
 
 const WHATSAPP_NUMBER = "966533654669";
 const PHONE_NUMBER = "966533654669";
-const TIKTOK_URL = "https://www.tiktok.com/@yourusername";
+const TIKTOK_URL = "https://www.tiktok.com/@laqeinaha.lak?_r=1&_t=ZS-9A7df3n1GYY";
 
 export function FloatingContact() {
   const whatsappMessage = encodeURIComponent(
