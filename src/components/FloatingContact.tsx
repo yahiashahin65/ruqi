@@ -1,7 +1,9 @@
-import { Phone, MessageCircle } from "lucide-react";
+import { FaWhatsapp, FaTiktok } from "react-icons/fa";
+import { Phone } from "lucide-react";
 
 const WHATSAPP_NUMBER = "966533654669";
 const PHONE_NUMBER = "966533654669";
+const TIKTOK_URL = "https://www.tiktok.com/@yourusername";
 
 export function FloatingContact() {
   const whatsappMessage = encodeURIComponent(
@@ -11,6 +13,18 @@ export function FloatingContact() {
   return (
     <div className="floating-contact">
 
+      {/* TikTok */}
+      <a
+        href={TIKTOK_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="floating-contact__button floating-contact__button--tiktok"
+        aria-label="TikTok"
+      >
+        <FaTiktok size={23} />
+      </a>
+
+      {/* WhatsApp */}
       <a
         href={`https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`}
         target="_blank"
@@ -18,10 +32,11 @@ export function FloatingContact() {
         className="floating-contact__button floating-contact__button--whatsapp"
         aria-label="WhatsApp"
       >
-        <MessageCircle size={24} />
+        <FaWhatsapp size={26} />
       </a>
 
 
+      {/* Phone */}
       <a
         href={`tel:${PHONE_NUMBER}`}
         className="floating-contact__button floating-contact__button--phone"
