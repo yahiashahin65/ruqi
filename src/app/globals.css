@@ -1843,3 +1843,11 @@ body.is-menu-locked { overflow: hidden; overscroll-behavior: none; }
   font-weight: 500;
   letter-spacing: -0.025em;
 }
+.floating-contact__button--tiktok {
+  background: #000;
+  color: #fff;
+}
+
+.floating-contact__button--tiktok:hover {
+  transform: translateY(-3px);
+}
