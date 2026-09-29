@@ -23,6 +23,11 @@ import {
   projectSchema
 } from "@/lib/validators";
 
+import {
+  uniqueSlug
+} from "@/lib/content-utils";
+
+
 export async function PATCH(
   request: NextRequest,
   context: {
@@ -48,13 +53,16 @@ export async function PATCH(
     const { id } =
       await context.params;
 
+
     const body =
       await request.json();
+
 
     const parsed =
       projectSchema.safeParse(
         body
       );
+
 
     if (!parsed.success) {
       return NextResponse.json(
@@ -73,8 +81,10 @@ export async function PATCH(
       );
     }
 
+
     const db =
       getAdminDb();
+
 
     if (!db) {
       return NextResponse.json(
@@ -88,13 +98,16 @@ export async function PATCH(
       );
     }
 
+
     const projectRef =
       db
         .collection("projects")
         .doc(id);
 
+
     const projectSnapshot =
       await projectRef.get();
+
 
     if (
       !projectSnapshot.exists
@@ -110,56 +123,103 @@ export async function PATCH(
       );
     }
 
+
+    const oldProject =
+      projectSnapshot.data();
+
+
+    /*
+     * Generate new slug automatically
+     * and keep old slugs for SEO redirects.
+     */
+    const slug =
+      await uniqueSlug(
+        db,
+        "projects",
+        parsed.data.title,
+        id
+      );
+
+
+    const previousSlugs =
+      oldProject?.slug &&
+      oldProject.slug !== slug
+        ? [
+            ...(oldProject.previousSlugs || []),
+            oldProject.slug
+          ]
+        : oldProject?.previousSlugs || [];
+
+
+
     const update = {
+
       title:
         parsed.data.title,
 
+      slug,
+
+      previousSlugs,
+
+
       type:
         parsed.data.type,
+
 
       style:
         parsed.data.style ||
         "",
 
+
       duration:
         parsed.data.duration ||
         "",
 
+
       excerpt:
         parsed.data.excerpt,
+
 
       story:
         parsed.data.story,
 
+
       cover:
         parsed.data.cover,
+
 
       gallery:
         parsed.data.gallery,
 
+
       featured:
         parsed.data.featured,
+
 
       order:
         parsed.data.order > 0
           ? parsed.data.order
           : 1,
 
+
       status:
         parsed.data.status,
 
+
       /*
-       * SEO is now generated automatically
+       * SEO is generated automatically
        * from project content.
        *
-       * When an old project is edited,
-       * remove the legacy fields from Firestore.
+       * Remove legacy SEO fields.
        */
       seoTitle:
         FieldValue.delete(),
 
+
       seoDescription:
         FieldValue.delete(),
+
+
 
       ...(parsed.data.area
         ? {
@@ -171,6 +231,8 @@ export async function PATCH(
               FieldValue.delete()
           }),
 
+
+
       ...(parsed.data.before
         ? {
             before:
@@ -180,6 +242,8 @@ export async function PATCH(
             before:
               FieldValue.delete()
           }),
+
+
 
       ...(parsed.data.after
         ? {
@@ -191,10 +255,14 @@ export async function PATCH(
               FieldValue.delete()
           }),
 
+
+
       updatedAt:
         new Date()
           .toISOString()
     };
+
+
 
     await projectRef.set(
       update,
@@ -203,15 +271,20 @@ export async function PATCH(
       }
     );
 
+
     revalidateTag(
       "projects",
       "max"
     );
 
+
     return NextResponse.json({
       ok: true
     });
+
+
   } catch {
+
     return NextResponse.json(
       {
         error:
@@ -221,8 +294,11 @@ export async function PATCH(
         status: 500
       }
     );
+
   }
 }
+
+
 
 export async function DELETE(
   _: NextRequest,
@@ -232,6 +308,7 @@ export async function DELETE(
     }>;
   }
 ) {
+
   if (
     !(await isAdminRequest())
   ) {
@@ -245,12 +322,16 @@ export async function DELETE(
     );
   }
 
+
   try {
+
     const { id } =
       await context.params;
 
+
     const db =
       getAdminDb();
+
 
     if (!db) {
       return NextResponse.json(
@@ -264,13 +345,18 @@ export async function DELETE(
       );
     }
 
+
     const projectRef =
       db
         .collection("projects")
         .doc(id);
 
+
+
     const projectSnapshot =
       await projectRef.get();
+
+
 
     if (
       !projectSnapshot.exists
@@ -286,17 +372,27 @@ export async function DELETE(
       );
     }
 
+
+
     await projectRef.delete();
+
+
 
     revalidateTag(
       "projects",
       "max"
     );
 
+
+
     return NextResponse.json({
       ok: true
     });
+
+
+
   } catch {
+
     return NextResponse.json(
       {
         error:
@@ -306,5 +402,6 @@ export async function DELETE(
         status: 500
       }
     );
+
   }
 }
