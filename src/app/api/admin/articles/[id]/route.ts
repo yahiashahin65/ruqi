@@ -23,6 +23,11 @@ import {
   articleSchema
 } from "@/lib/validators";
 
+import {
+  uniqueSlug
+} from "@/lib/content-utils";
+
+
 /* =========================================
    UPDATE ARTICLE
 ========================================= */
@@ -35,6 +40,7 @@ export async function PATCH(
     }>;
   }
 ) {
+
   if (
     !(await isAdminRequest())
   ) {
@@ -48,19 +54,25 @@ export async function PATCH(
     );
   }
 
+
   try {
+
     const { id } =
       await context.params;
 
+
     const body =
       await request.json();
+
 
     const parsed =
       articleSchema.safeParse(
         body
       );
 
+
     if (!parsed.success) {
+
       return NextResponse.json(
         {
           error:
@@ -75,12 +87,18 @@ export async function PATCH(
           status: 422
         }
       );
+
     }
+
+
 
     const db =
       getAdminDb();
 
+
+
     if (!db) {
+
       return NextResponse.json(
         {
           error:
@@ -90,7 +108,10 @@ export async function PATCH(
           status: 503
         }
       );
+
     }
+
+
 
     const ref =
       db
@@ -99,12 +120,17 @@ export async function PATCH(
         )
         .doc(id);
 
+
+
     const snapshot =
       await ref.get();
+
+
 
     if (
       !snapshot.exists
     ) {
+
       return NextResponse.json(
         {
           error:
@@ -114,78 +140,135 @@ export async function PATCH(
           status: 404
         }
       );
+
     }
+
+
 
     const current =
       snapshot.data();
+
+
 
     const wasPublished =
       current?.status ===
       "published";
 
+
+
     const now =
       new Date()
         .toISOString();
 
+
+
     /*
-     * First publication:
-     *
-     * draft -> published
-     * publishedAt = now
-     *
-     * Already published:
-     * keep original publishedAt.
-     *
-     * Draft:
-     * preserve existing value for
-     * backward compatibility.
+     * Generate new slug automatically
+     * and keep old slugs for SEO.
      */
+
+    const slug =
+      await uniqueSlug(
+        db,
+        "articles",
+        parsed.data.title,
+        id
+      );
+
+
+
+    const previousSlugs =
+      current?.slug &&
+      current.slug !== slug
+
+        ? [
+            ...(current.previousSlugs || []),
+            current.slug
+          ]
+
+        : current?.previousSlugs || [];
+
+
+
+
+    /*
+     * Publication date handling
+     */
+
     const publishedAt =
       parsed.data.status ===
       "published"
+
         ? wasPublished &&
           current?.publishedAt
+
           ? current.publishedAt
+
           : now
+
         : current?.publishedAt ||
           now;
 
+
+
     const update = {
+
       title:
         parsed.data.title,
+
+
+      slug,
+
+
+      previousSlugs,
+
 
       excerpt:
         parsed.data.excerpt,
 
+
       content:
         parsed.data.content,
+
 
       cover:
         parsed.data.cover,
 
+
       category:
         parsed.data.category,
 
+
       publishedAt,
+
 
       status:
         parsed.data.status,
 
+
+
       /*
-       * SEO is now generated automatically
+       * SEO is generated automatically
        * from title + excerpt.
        *
        * Remove old stored SEO fields.
        */
+
       seoTitle:
         FieldValue.delete(),
+
 
       seoDescription:
         FieldValue.delete(),
 
+
+
       updatedAt:
         now
+
     };
+
+
 
     await ref.set(
       update,
@@ -194,15 +277,23 @@ export async function PATCH(
       }
     );
 
+
+
     revalidateTag(
       "articles",
       "max"
     );
 
+
+
     return NextResponse.json({
       ok: true
     });
+
+
+
   } catch {
+
     return NextResponse.json(
       {
         error:
@@ -212,8 +303,12 @@ export async function PATCH(
         status: 500
       }
     );
+
   }
+
 }
+
+
 
 /* =========================================
    DELETE ARTICLE
@@ -227,9 +322,11 @@ export async function DELETE(
     }>;
   }
 ) {
+
   if (
     !(await isAdminRequest())
   ) {
+
     return NextResponse.json(
       {
         error: "غير مصرح"
@@ -238,16 +335,25 @@ export async function DELETE(
         status: 401
       }
     );
+
   }
 
+
+
   try {
+
     const { id } =
       await context.params;
+
+
 
     const db =
       getAdminDb();
 
+
+
     if (!db) {
+
       return NextResponse.json(
         {
           error:
@@ -257,7 +363,10 @@ export async function DELETE(
           status: 503
         }
       );
+
     }
+
+
 
     const ref =
       db
@@ -266,12 +375,17 @@ export async function DELETE(
         )
         .doc(id);
 
+
+
     const snapshot =
       await ref.get();
+
+
 
     if (
       !snapshot.exists
     ) {
+
       return NextResponse.json(
         {
           error:
@@ -281,19 +395,30 @@ export async function DELETE(
           status: 404
         }
       );
+
     }
 
+
+
     await ref.delete();
+
+
 
     revalidateTag(
       "articles",
       "max"
     );
 
+
+
     return NextResponse.json({
       ok: true
     });
+
+
+
   } catch {
+
     return NextResponse.json(
       {
         error:
@@ -303,5 +428,7 @@ export async function DELETE(
         status: 500
       }
     );
+
   }
+
 }
