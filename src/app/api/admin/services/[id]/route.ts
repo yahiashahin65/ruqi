@@ -23,6 +23,10 @@ import {
   serviceSchema
 } from "@/lib/validators";
 
+import {
+  uniqueSlug
+} from "@/lib/content-utils";
+
 /* =========================================
    UPDATE SERVICE
 ========================================= */
@@ -116,9 +120,43 @@ export async function PATCH(
       );
     }
 
+    const oldService =
+      serviceSnapshot.data();
+
+
+    /*
+     * Generate new slug automatically.
+     * If title changes, the slug changes too.
+     */
+    const slug =
+      await uniqueSlug(
+        db,
+        "services",
+        parsed.data.title,
+        id
+      );
+
+
+    /*
+     * Keep old URLs working for SEO.
+     */
+    const previousSlugs =
+      oldService?.slug &&
+      oldService.slug !== slug
+        ? [
+            ...(oldService.previousSlugs || []),
+            oldService.slug
+          ]
+        : oldService?.previousSlugs || [];
+
+
     const update = {
       title:
         parsed.data.title,
+
+      slug,
+
+      previousSlugs,
 
       eyebrow:
         "خدماتنا",
@@ -142,8 +180,9 @@ export async function PATCH(
       status:
         parsed.data.status,
 
+
       /*
-       * SEO is now generated automatically
+       * SEO is generated automatically
        * from:
        *
        * title + excerpt
@@ -162,6 +201,7 @@ export async function PATCH(
           .toISOString()
     };
 
+
     await serviceRef.set(
       update,
       {
@@ -169,14 +209,17 @@ export async function PATCH(
       }
     );
 
+
     revalidateTag(
       "services",
       "max"
     );
 
+
     return NextResponse.json({
       ok: true
     });
+
   } catch {
     return NextResponse.json(
       {
@@ -189,6 +232,7 @@ export async function PATCH(
     );
   }
 }
+
 
 /* =========================================
    DELETE SERVICE
@@ -268,6 +312,7 @@ export async function DELETE(
     return NextResponse.json({
       ok: true
     });
+
   } catch {
     return NextResponse.json(
       {
