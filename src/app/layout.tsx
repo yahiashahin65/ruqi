@@ -77,7 +77,7 @@ export const metadata: Metadata = {
       SITE_URL,
 
     siteName:
-      `${SITE_SEO_NAME} | ${DEFAULT_SETTINGS.brandName}`,
+      SITE_SEO_NAME,
 
     title:
       "رقي الجمال | تصميم داخلي وديكور في المدينة المنورة",
