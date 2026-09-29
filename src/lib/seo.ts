@@ -442,8 +442,14 @@ export function serviceJsonLd(
       ),
 
     provider: {
+      "@type":
+        "LocalBusiness",
+
       "@id":
-        `${SITE_ORIGIN}/#business`
+        `${SITE_ORIGIN}/#business`,
+
+      name:
+        SEO_BRAND_AR
     },
 
     areaServed: {
@@ -452,7 +458,24 @@ export function serviceJsonLd(
 
       name:
         "المدينة المنورة"
-    }
+    },
+
+    offers: {
+      "@type":
+        "Offer",
+
+      availability:
+        "https://schema.org/InStock",
+
+      priceCurrency:
+        "SAR",
+
+      url:
+        serviceUrl
+    },
+
+    inLanguage:
+      "ar-SA"
   };
 }
 
@@ -507,8 +530,9 @@ export function projectJsonLd(
     ],
 
     creator: {
-      "@id":
-        `${SITE_ORIGIN}/#business`
+      "@type": "LocalBusiness",
+  "@id":
+    `${SITE_ORIGIN}/#business`
     },
 
     contentLocation: {
@@ -517,6 +541,11 @@ export function projectJsonLd(
 
       name:
         "المدينة المنورة"
+    },
+    provider: {
+  "@type": "LocalBusiness",
+  "@id":
+    `${SITE_ORIGIN}/#business`
     },
 
     inLanguage:
@@ -572,13 +601,15 @@ export function articleJsonLd(
     },
 
     author: {
-      "@id":
-        `${SITE_ORIGIN}/#business`
+      "@type": "Organization",
+  "@id":
+    `${SITE_ORIGIN}/#business`
     },
 
     publisher: {
-      "@id":
-        `${SITE_ORIGIN}/#business`
+      "@type": "Organization",
+  "@id":
+    `${SITE_ORIGIN}/#business`
     },
 
     inLanguage:
