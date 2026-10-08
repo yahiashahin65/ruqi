@@ -1,49 +1,59 @@
 import { FaWhatsapp, FaTiktok } from "react-icons/fa";
 import { Phone } from "lucide-react";
 
-import { getPublicSettings } from "@/lib/firebase/data";
+import {
+  CONTACT_PHONE,
+  CONTACT_WHATSAPP,
+  CONTACT_TIKTOK
+} from "@/lib/constants";
 
-export async function FloatingContact() {
-  const settings = await getPublicSettings();
+export function FloatingContact() {
   const whatsappMessage = encodeURIComponent(
     "السلام عليكم، أرغب في الاستفسار عن خدمات التصميم والديكور في الرياض."
   );
 
+  const whatsappUrl =
+    `https://wa.me/${CONTACT_WHATSAPP}?text=${whatsappMessage}`;
+
+  const phoneUrl = `tel:+${CONTACT_WHATSAPP}`;
+
   return (
     <div className="floating-contact">
-      {settings.tiktok && (
-        <a
-          href={settings.tiktok}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="floating-contact__button floating-contact__button--tiktok"
-          aria-label="TikTok"
-        >
-          <FaTiktok size={23} />
-        </a>
-      )}
 
-      {settings.whatsapp && (
-        <a
-          href={`https://wa.me/${settings.whatsapp}?text=${whatsappMessage}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="floating-contact__button floating-contact__button--whatsapp"
-          aria-label="WhatsApp"
-        >
-          <FaWhatsapp size={26} />
-        </a>
-      )}
+      {/* TikTok */}
+      <a
+        href={CONTACT_TIKTOK}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="floating-contact__button floating-contact__button--tiktok"
+        aria-label="تابعنا على تيك توك"
+        title="TikTok"
+      >
+        <FaTiktok size={23} />
+      </a>
 
-      {settings.phone && (
-        <a
-          href={`tel:${settings.phone}`}
-          className="floating-contact__button floating-contact__button--phone"
-          aria-label="Call"
-        >
-          <Phone size={22} />
-        </a>
-      )}
+      {/* WhatsApp */}
+      <a
+        href={whatsappUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="floating-contact__button floating-contact__button--whatsapp"
+        aria-label="تواصل معنا عبر واتساب"
+        title="WhatsApp"
+      >
+        <FaWhatsapp size={26} />
+      </a>
+
+      {/* Phone */}
+      <a
+        href={phoneUrl}
+        className="floating-contact__button floating-contact__button--phone"
+        aria-label={`اتصل بنا على ${CONTACT_PHONE}`}
+        title={`اتصل بنا ${CONTACT_PHONE}`}
+      >
+        <Phone size={22} />
+      </a>
+
     </div>
   );
 }
