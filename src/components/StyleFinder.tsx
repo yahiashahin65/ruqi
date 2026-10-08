@@ -1,24 +1,56 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { CONTACT_WHATSAPP } from "@/lib/constants";
 
 const questions = [
-  { title: "أي إحساس أقرب لك؟", options: [{ label: "هادئ ودافئ", value: "warm" }, { label: "نظيف ومختصر", value: "minimal" }, { label: "غني وفاخر", value: "luxury" }] },
-  { title: "كيف تحب حضور الخامة؟", options: [{ label: "خشب وحجر طبيعي", value: "warm" }, { label: "أسطح هادئة ومتجانسة", value: "minimal" }, { label: "رخام ومعادن وتفاصيل", value: "luxury" }] },
-  { title: "ما شكل الإضاءة المفضل؟", options: [{ label: "ناعمة ومتدرجة", value: "warm" }, { label: "مخفية ودقيقة", value: "minimal" }, { label: "مشهدية ونقاط بارزة", value: "luxury" }] }
+  {
+    title: "أي إحساس أقرب لك؟",
+    options: [
+      { label: "هادئ ودافئ", value: "warm" },
+      { label: "نظيف ومختصر", value: "minimal" },
+      { label: "غني وفاخر", value: "luxury" }
+    ]
+  },
+  {
+    title: "كيف تحب حضور الخامة؟",
+    options: [
+      { label: "خشب وحجر طبيعي", value: "warm" },
+      { label: "أسطح هادئة ومتجانسة", value: "minimal" },
+      { label: "رخام ومعادن وتفاصيل", value: "luxury" }
+    ]
+  },
+  {
+    title: "ما شكل الإضاءة المفضل؟",
+    options: [
+      { label: "ناعمة ومتدرجة", value: "warm" },
+      { label: "مخفية ودقيقة", value: "minimal" },
+      { label: "مشهدية ونقاط بارزة", value: "luxury" }
+    ]
+  }
 ];
 
 const results = {
-  warm: { ar: "معاصر دافئ", text: "درجات ترابية وخشب وحجر ولمسات نسيجية، مع إضاءة طبقية ومساحات مريحة لا تبدو رسمية أكثر من اللازم." },
-  minimal: { ar: "بساطة هادئة", text: "خطوط واضحة، تخزين مدمج، خامات قليلة لكن محسوبة، وتفاصيل تقلل الضوضاء البصرية من دون أن تجعل المكان باردا." },
-  luxury: { ar: "فخامة متوازنة", text: "تباين مدروس بين الحجر والمعادن والأقمشة والإضاءة، مع حضور أقوى للتفاصيل من غير ازدحام زخرفي." }
+  warm: {
+    ar: "معاصر دافئ",
+    text: "درجات ترابية وخشب وحجر ولمسات نسيجية، مع إضاءة طبقية ومساحات مريحة لا تبدو رسمية أكثر من اللازم."
+  },
+  minimal: {
+    ar: "بساطة هادئة",
+    text: "خطوط واضحة، تخزين مدمج، خامات قليلة لكن محسوبة، وتفاصيل تقلل الضوضاء البصرية من دون أن تجعل المكان باردا."
+  },
+  luxury: {
+    ar: "فخامة متوازنة",
+    text: "تباين مدروس بين الحجر والمعادن والأقمشة والإضاءة، مع حضور أقوى للتفاصيل من غير ازدحام زخرفي."
+  }
 };
 
 type ResultKey = keyof typeof results;
 
-const whatsappNumber = "966502354855";
-
-function getWhatsappUrl(result: ResultKey) {
+/**
+ * Generate WhatsApp link using the official number.
+ */
+function getWhatsappUrl(result: ResultKey): string {
   const item = results[result];
 
   const message = `السلام عليكم،
@@ -32,7 +64,7 @@ ${item.text}
 
 ارغب في مناقشة تفاصيل مشروعي معكم.`;
 
-  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+  return `https://wa.me/${CONTACT_WHATSAPP}?text=${encodeURIComponent(message)}`;
 }
 
 export function StyleFinder() {
@@ -40,24 +72,42 @@ export function StyleFinder() {
   const [step, setStep] = useState(0);
 
   const result = useMemo(() => {
-    if (answers.length < questions.length) return null;
+    if (answers.length < questions.length) {
+      return null;
+    }
 
     const score = answers.reduce<Record<ResultKey, number>>(
-      (acc, key) => ({ ...acc, [key]: acc[key] + 1 }),
-      { warm: 0, minimal: 0, luxury: 0 }
+      (acc, key) => ({
+        ...acc,
+        [key]: acc[key] + 1
+      }),
+      {
+        warm: 0,
+        minimal: 0,
+        luxury: 0
+      }
     );
 
     return (Object.keys(score) as ResultKey[]).sort(
       (a, b) => score[b] - score[a]
     )[0];
-
   }, [answers]);
 
   function choose(value: ResultKey) {
     const next = [...answers];
+
     next[step] = value;
+
     setAnswers(next);
-    setStep((current) => Math.min(questions.length, current + 1));
+
+    setStep((current) =>
+      Math.min(questions.length, current + 1)
+    );
+  }
+
+  function restart() {
+    setAnswers([]);
+    setStep(0);
   }
 
   if (result) {
@@ -65,7 +115,9 @@ export function StyleFinder() {
 
     return (
       <div className="wizard__step">
-        <p className="eyebrow">اتجاهك الأقرب</p>
+        <p className="eyebrow">
+          اتجاهك الأقرب
+        </p>
 
         <h2>{item.ar}</h2>
 
@@ -75,11 +127,9 @@ export function StyleFinder() {
 
         <div className="wizard__actions">
           <button
+            type="button"
             className="button"
-            onClick={() => {
-              setAnswers([]);
-              setStep(0);
-            }}
+            onClick={restart}
           >
             إعادة الاختبار
           </button>
@@ -104,7 +154,9 @@ export function StyleFinder() {
       <div className="wizard__progress">
         {questions.map((_, index) => (
           <span
-            className={index <= step ? "is-active" : ""}
+            className={
+              index <= step ? "is-active" : ""
+            }
             key={index}
           />
         ))}
@@ -123,7 +175,9 @@ export function StyleFinder() {
               type="button"
               className="choice"
               key={option.label}
-              onClick={() => choose(option.value as ResultKey)}
+              onClick={() =>
+                choose(option.value as ResultKey)
+              }
             >
               {option.label}
             </button>
