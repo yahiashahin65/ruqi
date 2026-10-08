@@ -1,18 +1,27 @@
 import Link from "next/link";
-import {
-  ArrowUpLeft,
-  Ghost,
-  MessageCircle,
-  Music2,
-  Phone
-} from "lucide-react";
+import { ArrowUpLeft, Ghost, Phone } from "lucide-react";
+import { FaWhatsapp, FaTiktok } from "react-icons/fa";
 
 import { getPublicSettings } from "@/lib/firebase/data";
-import { projectWhatsapp } from "@/lib/whatsapp";
+import {
+  CONTACT_PHONE,
+  CONTACT_WHATSAPP,
+  CONTACT_TIKTOK
+} from "@/lib/constants";
+
 import { BrandMark } from "./BrandMark";
 
 export async function Footer() {
   const settings = await getPublicSettings();
+
+  const whatsappMessage = encodeURIComponent(
+    "السلام عليكم، أرغب في الاستفسار عن خدمات التصميم والديكور في الرياض."
+  );
+
+  const whatsappUrl =
+    `https://wa.me/${CONTACT_WHATSAPP}?text=${whatsappMessage}`;
+
+  const phoneUrl = `tel:+${CONTACT_WHATSAPP}`;
 
   return (
     <footer className="footer">
@@ -28,11 +37,7 @@ export async function Footer() {
             يغير طريقة العيش داخله.
           </h2>
 
-          <p
-            style={{
-              maxWidth: "620px"
-            }}
-          >
+          <p style={{ maxWidth: "620px" }}>
             ديكور لاين الرياض للتصميم الداخلي والديكور
             والتنفيذ والتجديد في الرياض
             للمشاريع السكنية والتجارية.
@@ -40,13 +45,12 @@ export async function Footer() {
 
           <a
             className="text-link text-link--light"
-            href={projectWhatsapp()}
+            href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="ابدأ مشروعك مع ديكور لاين الرياض عبر واتساب"
           >
             احك لنا عن مشروعك
-
             <ArrowUpLeft
               size={18}
               aria-hidden="true"
@@ -60,77 +64,74 @@ export async function Footer() {
           </p>
 
           <div className="footer__socials">
-            {settings.phone && (
-              <a
-                href={`tel:${settings.phone}`}
-                aria-label={`اتصل بديكور لاين الرياض على ${settings.phone}`}
-                title="اتصال"
-              >
-                <Phone
-                  size={19}
-                  strokeWidth={1.7}
-                  aria-hidden="true"
-                />
-              </a>
-            )}
 
-            {settings.whatsapp && (
-              <a
-                href={`https://wa.me/${settings.whatsapp}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="تواصل مع ديكور لاين الرياض عبر واتساب"
-                title="واتساب"
-              >
-                <MessageCircle
-                  size={20}
-                  strokeWidth={1.7}
-                  aria-hidden="true"
-                />
-              </a>
-            )}
+            {/* TikTok */}
+            <a
+              href={CONTACT_TIKTOK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="floating-contact__button floating-contact__button--tiktok"
+              aria-label="تابعنا على تيك توك"
+              title="تيك توك"
+            >
+              <FaTiktok
+                size={23}
+                aria-hidden="true"
+              />
+            </a>
 
-            {settings.tiktok && (
-              <a
-                href={settings.tiktok}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="تابع ديكور لاين الرياض على تيك توك"
-                title="تيك توك"
-              >
-                <Music2
-                  size={20}
-                  strokeWidth={1.7}
-                  aria-hidden="true"
-                />
-              </a>
-            )}
+            {/* WhatsApp */}
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="floating-contact__button floating-contact__button--whatsapp"
+              aria-label="تواصل معنا عبر واتساب"
+              title="واتساب"
+            >
+              <FaWhatsapp
+                size={26}
+                aria-hidden="true"
+              />
+            </a>
 
+            {/* Direct call */}
+            <a
+              href={phoneUrl}
+              className="floating-contact__button floating-contact__button--phone"
+              aria-label={`اتصل بنا على ${CONTACT_PHONE}`}
+              title="اتصال"
+            >
+              <Phone
+                size={22}
+                aria-hidden="true"
+              />
+            </a>
+
+            {/* Snapchat if configured */}
             {settings.snapchat && (
               <a
                 href={settings.snapchat}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="تابع ديكور لاين الرياض على سناب شات"
+                className="floating-contact__button footer__social--snapchat"
+                aria-label="تابعنا على سناب شات"
                 title="سناب شات"
               >
                 <Ghost
-                  size={20}
-                  strokeWidth={1.7}
+                  size={22}
                   aria-hidden="true"
                 />
               </a>
             )}
           </div>
 
-          {settings.phone && (
-            <a
-              href={`tel:${settings.phone}`}
-              aria-label={`رقم ديكور لاين الرياض ${settings.phone}`}
-            >
-              {settings.phone}
-            </a>
-          )}
+          <a
+            href={phoneUrl}
+            aria-label={`رقم ديكور لاين الرياض ${CONTACT_PHONE}`}
+          >
+            {CONTACT_PHONE}
+          </a>
 
           {settings.businessHours && (
             <p>
