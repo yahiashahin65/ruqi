@@ -1,9 +1,9 @@
+
 import type { SiteSettings } from "./types";
 
 /**
  * Production domain.
- * Never fallback to the old Vercel URL because this value
- * is used by canonical URLs, sitemap and structured data.
+ * Used for canonical URLs, sitemap and structured data.
  */
 export const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL ||
@@ -13,56 +13,58 @@ export const SITE_URL = (
 /**
  * Brand name shown inside the visual UI.
  */
-export const SITE_DISPLAY_NAME =
-  "ديكور لاين الرياض";
+export const SITE_DISPLAY_NAME = "ديكور لاين الرياض";
 
 /**
  * Brand name used for SEO/search-facing content.
  */
-export const SITE_SEO_NAME =
-  "ديكور لاين الرياض";
+export const SITE_SEO_NAME = "ديكور لاين الرياض";
 
-export const SITE_NAME_EN =
-  "DECOR LINE RIYADH";
+export const SITE_NAME_EN = "DECOR LINE RIYADH";
 
+/**
+ * Official contact information.
+ */
+export const CONTACT_PHONE = "0502354855";
+
+export const CONTACT_WHATSAPP = "966502354855";
+
+export const CONTACT_WHATSAPP_URL =
+  `https://wa.me/${CONTACT_WHATSAPP}`;
+
+export const CONTACT_TIKTOK =
+  "https://www.tiktok.com/@laqeinaha.lak";
+
+/**
+ * Default website settings.
+ */
 export const DEFAULT_SETTINGS: SiteSettings = {
   brandName: SITE_NAME_EN,
 
-  // Keep tashkeel here because this is also used
-  // throughout the visual identity.
   brandNameAr: SITE_DISPLAY_NAME,
 
-  tagline:
-    "نصمم مساحات ترتقي بتفاصيل الحياة",
+  tagline: "نصمم مساحات ترتقي بتفاصيل الحياة",
 
-  city:
-    "الرياض",
+  city: "الرياض",
 
-  phone:
-    process.env.NEXT_PUBLIC_PHONE ||
-    "0502354855",
+  // Phone number for direct calls
+  phone: CONTACT_PHONE,
 
-  whatsapp:
-    process.env.NEXT_PUBLIC_WHATSAPP ||
-    "966502354855",
+  // WhatsApp number in international format
+  whatsapp: CONTACT_WHATSAPP,
 
-  address:
-    "الرياض، المملكة العربية السعودية",
+  address: "الرياض، المملكة العربية السعودية",
 
   instagram:
-    process.env.NEXT_PUBLIC_INSTAGRAM ||
-    "",
+    process.env.NEXT_PUBLIC_INSTAGRAM || "",
 
-  tiktok:
-    process.env.NEXT_PUBLIC_TIKTOK ||
-    "",
+  // Official TikTok account
+  tiktok: CONTACT_TIKTOK,
 
   snapchat:
-    process.env.NEXT_PUBLIC_SNAPCHAT ||
-    "",
+    process.env.NEXT_PUBLIC_SNAPCHAT || "",
 
-  businessHours:
-    "السبت–الخميس 09:00–18:00"
+  businessHours: "السبت–الخميس 09:00–18:00"
 };
 
 export const PROJECT_TYPES = {
