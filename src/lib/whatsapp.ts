@@ -1,10 +1,16 @@
-const WHATSAPP_NUMBER = "966502354855";
 
-function createWhatsappLink(message: string) {
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+import { CONTACT_WHATSAPP } from "./constants";
+
+/**
+ * Generate WhatsApp links using the official number.
+ */
+function createWhatsappLink(message: string): string {
+  return `https://wa.me/${CONTACT_WHATSAPP}?text=${encodeURIComponent(message)}`;
 }
 
-
+/**
+ * Project WhatsApp inquiry.
+ */
 export function projectWhatsapp(projectName?: string) {
   return createWhatsappLink(
 `السلام عليكم،
@@ -18,7 +24,9 @@ ${projectName || "مشروع تصميم داخلي"}
   );
 }
 
-
+/**
+ * Service WhatsApp inquiry.
+ */
 export function serviceWhatsapp(serviceName: string) {
   return createWhatsappLink(
 `السلام عليكم،
@@ -31,7 +39,9 @@ ${serviceName}
   );
 }
 
-
+/**
+ * Article WhatsApp inquiry.
+ */
 export function articleWhatsapp(articleTitle?: string) {
   return createWhatsappLink(
 `السلام عليكم،
