@@ -1851,3 +1851,55 @@ body.is-menu-locked { overflow: hidden; overscroll-behavior: none; }
 .floating-contact__button--tiktok:hover {
   transform: translateY(-3px);
 }
+
+/* Footer floating-style social icons */
+
+.footer__socials a.floating-contact__button {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+/* TikTok */
+.footer__socials a.floating-contact__button--tiktok,
+.footer__socials a.floating-contact__button--tiktok:hover {
+  background: #000;
+  color: #fff;
+}
+
+/* WhatsApp */
+.footer__socials a.floating-contact__button--whatsapp,
+.footer__socials a.floating-contact__button--whatsapp:hover {
+  background: #25d366;
+  color: #fff;
+}
+
+/* Phone */
+.footer__socials a.floating-contact__button--phone,
+.footer__socials a.floating-contact__button--phone:hover {
+  background: var(--ink);
+  color: #fff;
+}
+
+/* Snapchat */
+.footer__socials a.footer__social--snapchat,
+.footer__socials a.footer__social--snapchat:hover {
+  background: #fffc00;
+  color: #111;
+}
+
+/* Hover */
+.footer__socials a.floating-contact__button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.3);
+}
