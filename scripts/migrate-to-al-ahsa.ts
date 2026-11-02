@@ -35,7 +35,7 @@ async function run() {
   const docs = await Promise.all(collections.map(async (name) => ({ name, snapshots: (await db.collection(name).get()).docs })));
   const settingsSnapshot = await db.doc("settings/public").get();
   const all = docs.flatMap(({ name, snapshots }) => snapshots.map((doc) => ({
-    path: doc.ref.path, collection: name, id: doc.id, before: doc.data(), updateTime: doc.updateTime, plan: createPlan(name, doc.id, doc.data())
+    path: doc.ref.path, collection: name, id: doc.id, before: doc.data(), updateTime: doc.updateTime as typeof settingsSnapshot.updateTime, plan: createPlan(name, doc.id, doc.data())
   })));
   all.push({
     path: "settings/public", collection: "settings", id: "public", before: settingsSnapshot.data() || {}, updateTime: settingsSnapshot.updateTime,
