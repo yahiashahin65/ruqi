@@ -1,0 +1,12 @@
+node_modules
+.next
+.env
+.env.local
+.env.production
+.vercel
+.DS_Store
+*.log
+
+# Private Firestore backups and audit reports (may include CMS content)
+backups/
+audit-output/
