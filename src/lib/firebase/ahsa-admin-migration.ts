@@ -39,7 +39,13 @@ export async function previewMigration(db: Firestore) {
   const names = ["projects", "services", "articles"] as const;
   const snapshots = await Promise.all(names.map((name) => db.collection(name).get()));
   const settings = await db.doc("settings/public").get();
-  const documents = snapshots.flatMap((snapshot, index) =>
+  const documents: Array<{
+  path: string;
+  version: number | null;
+  collection: CollectionName;
+  id: string;
+  data: DocumentData;
+}> = snapshots.flatMap((snapshot, index) =>
     snapshot.docs.map((doc) => ({ path: doc.ref.path, version: doc.updateTime?.toMillis() ?? null,
       collection: names[index] as CollectionName, id: doc.id, data: doc.data() }))
   );
