@@ -7,7 +7,8 @@ const items = [
   ["المشاريع", "/admin/projects"],
   ["الخدمات", "/admin/services"],
   ["الطلبات", "/admin/leads"],
-  ["المجلة", "/admin/articles"]
+  ["المجلة", "/admin/articles"],
+  ["تحويل المحتوى للأحساء", "/admin/al-ahsa-migration"]
 ];
 
 export function AdminShell({ title, children }: { title: string; children: React.ReactNode }) {
