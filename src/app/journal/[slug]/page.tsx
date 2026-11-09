@@ -181,7 +181,7 @@ export default async function ArticlePage({
   }
 
   if (isOldSlug) {
-    permanentRedirect(`/journal/${article.slug}`);
+    permanentRedirect(`/journal/${encodeURIComponent(article.slug)}`);
   }
 
   const schema =
