@@ -73,7 +73,7 @@ export default async function ServicePage({
   }
 
   if (isOldSlug) {
-    permanentRedirect(`/services/${service.slug}`);
+    permanentRedirect(`/services/${encodeURIComponent(service.slug)}`);
   }
 
   const serviceTitle =
