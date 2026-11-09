@@ -74,7 +74,7 @@ export default async function ProjectPage({
   }
 
   if (isOldSlug) {
-    permanentRedirect(`/projects/${project.slug}`);
+    permanentRedirect(`/projects/${encodeURIComponent(project.slug)}`);
   }
 
   const projectType =
