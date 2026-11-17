@@ -37,7 +37,26 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } =
     await params;
+  
+const normalizedSlug = (() => {
+  try {
+    return decodeURIComponent(slug).normalize("NFKC");
+  } catch {
+    return slug.normalize("NFKC");
+  }
+})();
 
+if (
+  normalizedSlug ===
+  "بديل-الخشب-للجدران-الداخلية"
+) {
+  permanentRedirect(
+    `/projects/${encodeURIComponent(
+      "بديل-الشيبورد-في-الأحساء-للجدران-الداخلية"
+    )}`
+  );
+}
+  
   const { item: project } =
     await getProjectBySlugWithHistory(
       slug
