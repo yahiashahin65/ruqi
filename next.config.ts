@@ -1,4 +1,3 @@
-
 import type { NextConfig } from "next";
 
 const r2PublicBaseUrl = process.env.R2_PUBLIC_BASE_URL;
@@ -15,28 +14,27 @@ try {
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "images.unsplash.com" },
-      { protocol: "https", hostname: "**.r2.dev" },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com"
+      },
+      {
+        protocol: "https",
+        hostname: "**.r2.dev"
+      },
       ...(r2Host
-        ? [{ protocol: "https" as const, hostname: r2Host }]
+        ? [
+            {
+              protocol: "https" as const,
+              hostname: r2Host
+            }
+          ]
         : [])
     ],
     formats: ["image/avif", "image/webp"]
   },
 
-  poweredByHeader: false,
-
-  async redirects() {
-    return [
-      {
-        source: "/projects/بديل-الخشب-للجدران-الداخلية",
-        destination: `/projects/${encodeURIComponent(
-          "بديل-الشيبورد-في-الأحساء-للجدران-الداخلية"
-        )}`,
-        permanent: true
-      }
-    ];
-  }
+  poweredByHeader: false
 };
 
 export default nextConfig;
